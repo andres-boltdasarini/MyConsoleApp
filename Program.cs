@@ -4,35 +4,44 @@ class MainClass
 {
     public static void Main(string[] args)
     {
-        int[,] arr = { { -5, 6, 9, 1, 2, -3 }, { -8, 8, 1, 1, 2, -3 } };
+        (string Name, string LastName, string Login, int LoginLength, bool HasPet, string[] favcolors, double Age) User;
 
-        // Проходим по каждой строке массива
-        for (int i = 0; i < arr.GetLength(0); i++)
-        {
-            // Сортировка элементов в текущей строке
-            for (int j = 0; j < arr.GetLength(1) - 1; j++)
-            {
-                for (int k = j + 1; k < arr.GetLength(1); k++)
-                {
-                    if (arr[i, j] > arr[i, k])
-                    {
-                        // Меняем местами элементы, если они находятся в неправильном порядке
-                        int temp = arr[i, j];
-                        arr[i, j] = arr[i, k];
-                        arr[i, k] = temp;
-                    }
-                }
-            }
-        }
+for (int k = 0; k < 3; k++) {
 
-        // Вывод отсортированного массива
-        for (int i = 0; i < arr.GetLength(0); i++)
-        {
-            for (int j = 0; j < arr.GetLength(1); j++)
-            {
-                Console.Write(arr[i, j] + " ");
-            }
-            Console.WriteLine();
-        }
+  Console.WriteLine("Введите имя");
+  User.Name = Console.ReadLine();
+
+  Console.WriteLine("Введите фамилию");
+
+  User.LastName = Console.ReadLine();
+
+  Console.WriteLine("Введите логин");
+
+  User.Login = Console.ReadLine();
+
+  User.LoginLength = User.Login.Length;
+
+  Console.WriteLine("Есть ли у вас животные? Да или Нет");
+
+  var result = Console.ReadLine();
+
+  if (result == "Да") {
+    User.HasPet = true;
+  }
+  else {
+    User.HasPet = false;
+  }
+
+  Console.WriteLine("Введите возраст пользователя");
+
+  User.Age = double.Parse(Console.ReadLine());
+
+  User.favcolors = new string[3];
+  Console.WriteLine("Введите три любимых цвета пользователя");
+
+  for (int i = 0; i < User.favcolors.Length; i++) {
+    User.favcolors[i] = Console.ReadLine();
+  }
+}
     }
 }
