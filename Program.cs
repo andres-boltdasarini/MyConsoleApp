@@ -2,73 +2,41 @@
 
 class MainClass
 {
-    // Метод для выбора цвета
-    static string ShowColor()
+    static int[] GetArrayFromConsole()
     {
-        Console.WriteLine("Напишите свой любимый цвет на английском с маленькой буквы");
-        var color = Console.ReadLine();
+        var arr = new int[5];
 
-        switch (color)
+        for (int i = 0; i < arr.Length; i++)
         {
-            case "red":
-                Console.BackgroundColor = ConsoleColor.Red;
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.WriteLine("Your color is red!");
-                break;
-
-            case "green":
-                Console.BackgroundColor = ConsoleColor.Green;
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.WriteLine("Your color is green!");
-                break;
-
-            case "cyan":
-                Console.BackgroundColor = ConsoleColor.Cyan;
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.WriteLine("Your color is cyan!");
-                break;
-
-            default:
-                Console.BackgroundColor = ConsoleColor.Yellow;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Your color is yellow!");
-                color = "yellow"; // Присваиваем значение по умолчанию
-                break;
+            Console.WriteLine("Введите элемент массива номер {0}", i + 1);
+            arr[i] = int.Parse(Console.ReadLine());
         }
 
-        // Возвращаем выбранный цвет
-        return color;
+        int temp;
+
+        for (int i = 0; i < arr.Length; i++)
+        {
+            for (int j = i + 1; j < arr.Length; j++)
+            {
+                if (arr[i] > arr[j])
+                {
+                    temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+        }
+
+        foreach (var item in arr)
+        {
+            Console.Write(item);
+        }
+
+        return arr;
     }
 
     public static void Main(string[] args)
     {
-        var (name, age) = ("Евгения", 27);
-
-        Console.WriteLine("Мое имя: {0}", name);
-        Console.WriteLine("Мой возраст: {0}", age);
-
-        Console.Write("Введите имя: ");
-        name = Console.ReadLine();
-        Console.Write("Введите возраст цифрами: ");
-        age = Convert.ToInt32(Console.ReadLine());
-
-        Console.WriteLine("Ваше имя: {0}", name);
-        Console.WriteLine("Ваш возраст: {0}", age);
-
-        // Массив для хранения трех цветов
-        string[] favColors = new string[3];
-
-        // Цикл для ввода трех цветов
-        for (int i = 0; i < favColors.Length; i++)
-        {
-            favColors[i] = ShowColor(); // Записываем результат метода в массив
-        }
-
-        // Выводим все цвета из массива
-        Console.WriteLine("Ваши любимые цвета:");
-        foreach (var color in favColors)
-        {
-            Console.WriteLine(color);
-        }
+        GetArrayFromConsole();
     }
 }
