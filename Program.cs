@@ -5,7 +5,6 @@ class MainClass
     static int[] GetArrayFromConsole(int num = 5)
     {
         var result = new int[num];
-
         for (int i = 0; i < result.Length; i++)
         {
             Console.WriteLine("Введите элемент массива номер {0}", i + 1);
@@ -13,9 +12,9 @@ class MainClass
         }
         return result;
     }
+
     static int[] SortArray(int[] result)
         {
-
             int temp = 0;
             for (int i = 0; i < result.Length; i++)
             {
@@ -29,17 +28,26 @@ class MainClass
                     }
                 }
             }
-
-         /*   for (int i = 0; i < result.Length; i++)
-            {
-                Console.WriteLine(result[i]);
-            }*/
         return result;
+    }
+
+    static void ShowArray(int[] array, bool isSort = false)
+    {
+        var temp = array;
+        if (isSort)
+        {
+            temp = SortArray(array);
+        }
+
+        foreach (var item in temp)
+        {
+            Console.WriteLine(item);
+        }
     }
 
     public static void Main(string[] args)
     {
-        var array = GetArrayFromConsole();
-        var sortedarray = SortArray(array);
+        var array = GetArrayFromConsole(10);
+        ShowArray(array, true);
     }
 }
