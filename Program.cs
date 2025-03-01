@@ -11,32 +11,34 @@ class MainClass
             Console.WriteLine("Введите элемент массива номер {0}", i + 1);
             result[i] = int.Parse(Console.ReadLine());
         }
-
-        int temp = 0;
-
-        for (int i = 0; i < result.Length; i++)
+        return result;
+    }
+    static int[] SortArray(int[] result)
         {
-            for (int j = i + 1; j < result.Length; j++)
+
+            int temp = 0;
+            for (int i = 0; i < result.Length; i++)
             {
-                if (result[i] > result[j])
+                for (int j = i + 1; j < result.Length; j++)
                 {
-                    temp = result[i];
-                    result[i] = result[j];
-                    result[j] = temp;
+                    if (result[i] > result[j])
+                    {
+                        temp = result[i];
+                        result[i] = result[j];
+                        result[j] = temp;
+                    }
                 }
             }
-        }
 
-        for (int i = 0; i < result.Length; i++)
-        {
-            Console.WriteLine(result[i]);
-        }
-
+         /*   for (int i = 0; i < result.Length; i++)
+            {
+                Console.WriteLine(result[i]);
+            }*/
         return result;
     }
 
     public static void Main(string[] args)
     {
-        GetArrayFromConsole();
+        SortArray(GetArrayFromConsole());
     }
 }
