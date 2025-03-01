@@ -4,35 +4,35 @@ class MainClass
 {
     static int[] GetArrayFromConsole()
     {
-        var arr = new int[5];
+        var result = new int[5];
 
-        for (int i = 0; i < arr.Length; i++)
+        for (int i = 0; i < result.Length; i++)
         {
             Console.WriteLine("Введите элемент массива номер {0}", i + 1);
-            arr[i] = int.Parse(Console.ReadLine());
+            result[i] = int.Parse(Console.ReadLine());
         }
 
-        int temp;
+        int temp = 0;
 
-        for (int i = 0; i < arr.Length; i++)
+        for (int i = 0; i < result.Length; i++)
         {
-            for (int j = i + 1; j < arr.Length; j++)
+            for (int j = i + 1; j < result.Length; j++)
             {
-                if (arr[i] > arr[j])
+                if (result[i] > result[j])
                 {
-                    temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temp;
+                    temp = result[i];
+                    result[i] = result[j];
+                    result[j] = temp;
                 }
             }
         }
 
-        foreach (var item in arr)
+        for (int i = 0; i < result.Length; i++)
         {
-            Console.Write(item);
+            Console.WriteLine(result[i]);
         }
 
-        return arr;
+        return result;
     }
 
     public static void Main(string[] args)
