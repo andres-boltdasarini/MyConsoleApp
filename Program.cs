@@ -1,4 +1,5 @@
 ﻿using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 class MainClass
 {
@@ -13,21 +14,45 @@ class MainClass
         return result;
     }
 
-    static int[] SortArray(int[] result)
+    static void SortArray(in int[] array, out int[] sorteddesc, out int[] sortedasc)
+    {
+        sorteddesc = SortArrayDesc(array);
+        sortedasc = SortArrayAsc(array);
+    }
+
+    static int[] SortArrayDesc(int[] result)
+    {
+        int temp = 0;
+        for (int i = 0; i < result.Length; i++)
         {
-            int temp = 0;
-            for (int i = 0; i < result.Length; i++)
+            for (int j = i + 1; j < result.Length; j++)
             {
-                for (int j = i + 1; j < result.Length; j++)
+                if (result[i] < result[j])
                 {
-                    if (result[i] > result[j])
-                    {
-                        temp = result[i];
-                        result[i] = result[j];
-                        result[j] = temp;
-                    }
+                    temp = result[i];
+                    result[i] = result[j];
+                    result[j] = temp;
                 }
             }
+        }
+        return result;
+    }
+
+    static int[] SortArrayAsc(int[] result)
+    {
+        int temp = 0;
+        for (int i = 0; i < result.Length; i++)
+        {
+            for (int j = i + 1; j < result.Length; j++)
+            {
+                if (result[i] > result[j])
+                {
+                    temp = result[i];
+                    result[i] = result[j];
+                    result[j] = temp;
+                }
+            }
+        }
         return result;
     }
 
@@ -36,7 +61,7 @@ class MainClass
         var temp = array;
         if (isSort)
         {
-            temp = SortArray(array);
+            SortArray(array);
         }
 
         foreach (var item in temp)
