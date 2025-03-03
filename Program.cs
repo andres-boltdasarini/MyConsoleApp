@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 class Program
 {
-    static bool CheckNum(string number, out int corrnumber)
+    static bool CheckNumBool(string number, out int corrnumber)
     {
         if (int.TryParse(number, out int intnum))
         {
@@ -17,36 +19,59 @@ class Program
         return true;
     }
 
-    static (string Name, string Last, int Age) GetUserData()
+    static int CheckNum(string promp)
     {
-        Console.WriteLine("name");
-        string firstName = Console.ReadLine();
-        Console.WriteLine("sename");
-        string lastName = Console.ReadLine();
-        string age;
         int intage;
+        string text;
         do
         {
-            Console.WriteLine("age");
-            age = Console.ReadLine();
-        } while (CheckNum(age, out intage));
+            Console.WriteLine($"Введите {promp}");
+            text = Console.ReadLine();
+                if (!CheckNumBool(text, out intage))
+            {
+                return intage;
+            }
+            Console.WriteLine("Некорректный ввод. (не число или число меньше 1).");
+        } while (true);
+    }
 
-        Console.WriteLine("pet");
-        var petinput = Console.ReadLine();
+    static string CheckString(string promp)
+    {
+        string input;
+        do
+        {
+            Console.WriteLine($"Введите {promp}");
+            input = Console.ReadLine();
+            if (!int.TryParse(input, out _))
+            {
+                return input;
+            }
+            Console.WriteLine("Некорректный ввод. (не строка).");
+        } while (true);
+    }
+
+    static (string Name, string Last, int Age, string[] Petname, string[] Colors) GetUserData()
+    {
+        string firstName = CheckString("имя");
+        string lastName = CheckString("фамилию");
+  
+        int intage = CheckNum("возраст");
+
+
+        string petinput = CheckString("Есть ли у вас питомец? (да/нет)");
         bool pet = petinput == "да";
-        int petmany = 0;
+        int petmany;
         string[] petname = {};
         if (pet)
         {
-            Console.WriteLine("petmany");
-            petmany = Convert.ToInt32(Console.ReadLine());
+            petmany = CheckNum("количество питомцев");
             petname = Petname(petmany);
         }
-        Console.WriteLine("colormany");
-        int colormany = Convert.ToInt32(Console.ReadLine());
-        Favcolors(colormany);
+        int colormany = CheckNum("количество любимых цветов");
+        string[] colors = {};
+        colors = Favcolors(colormany);
 
-        return (firstName, lastName, intage);
+        return (firstName, lastName, intage, petname, colors);
     }
 
     static string[] Petname(int petmany)
@@ -54,27 +79,52 @@ class Program
         var petname = new string[petmany];
         for(int i = 0; i < petname.Length; i++)
         {
-            Console.WriteLine("name");
-            petname[i] = Console.ReadLine();
+            petname[i] = CheckString($"{i+1} кличку питомца");
         }
         return petname;
     }
 
-    static string[] Favcolors(int colors)
+    static string[] Favcolors(int colormany)
     {
-        string[] favcolors = new string[colors];
-        Console.WriteLine($"Введите {colors} любимых цвета пользователя");
-
+        string[] favcolors = new string[colormany];
         for (int i = 0; i < favcolors.Length; i++)
         {
-            favcolors[i] = Console.ReadLine();
+            favcolors[i] = CheckString($"{i+1} любимый цвет");
         }
         return favcolors;
     }
 
+    static void ShowUserData((string Name, string Last, int Age, string[] Petname, string[] Colors) userData)
+    {
+        Console.WriteLine("\nДанные пользователя:");
+        Console.WriteLine($"Имя: {userData.Name}");
+        Console.WriteLine($"Фамилия: {userData.Last}");
+        Console.WriteLine($"Возраст: {userData.Age}");
+
+        if (userData.Petname.Length > 0)
+        {
+            Console.WriteLine("Клички питомцев:");
+            foreach (var name in userData.Petname)
+            {
+                Console.WriteLine($"- {name}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Питомцев нет.");
+        }
+
+        Console.WriteLine("Любимые цвета:");
+        foreach (var color in userData.Colors)
+        {
+            Console.WriteLine($"- {color}");
+        }
+    }
+
     static void Main(string[] args)
     {
-        Console.WriteLine(GetUserData());
+        var userData = GetUserData();
+        ShowUserData(userData);
     }
 }
 
