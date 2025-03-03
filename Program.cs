@@ -1,78 +1,80 @@
 ﻿using System;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Net.Mime.MediaTypeNames;
 
-class MainClass
+class Program
 {
-    static int[] GetArrayFromConsole(int num = 5)
+    static bool CheckNum(string number, out int corrnumber)
     {
-        var result = new int[num];
-        for (int i = 0; i < result.Length; i++)
+        if (int.TryParse(number, out int intnum))
         {
-            Console.WriteLine("Введите элемент массива номер {0}", i + 1);
-            result[i] = int.Parse(Console.ReadLine());
-        }
-        return result;
-    }
-
-    static void SortArray(in int[] array, out int[] sorteddesc, out int[] sortedasc)
-    {
-        sorteddesc = SortArrayDesc(array);
-        sortedasc = SortArrayAsc(array);
-    }
-
-    static int[] SortArrayDesc(int[] result)
-    {
-        int temp = 0;
-        for (int i = 0; i < result.Length; i++)
-        {
-            for (int j = i + 1; j < result.Length; j++)
+            if (intnum > 0)
             {
-                if (result[i] < result[j])
-                {
-                    temp = result[i];
-                    result[i] = result[j];
-                    result[j] = temp;
-                }
+                corrnumber = intnum;
+                return false;
             }
         }
-        return result;
+        corrnumber = 0;
+        return true;
     }
 
-    static int[] SortArrayAsc(int[] result)
+    static (string Name, string Last, int Age) GetUserData()
     {
-        int temp = 0;
-        for (int i = 0; i < result.Length; i++)
+        Console.WriteLine("name");
+        string firstName = Console.ReadLine();
+        Console.WriteLine("sename");
+        string lastName = Console.ReadLine();
+        string age;
+        int intage;
+        do
         {
-            for (int j = i + 1; j < result.Length; j++)
-            {
-                if (result[i] > result[j])
-                {
-                    temp = result[i];
-                    result[i] = result[j];
-                    result[j] = temp;
-                }
-            }
+            Console.WriteLine("age");
+            age = Console.ReadLine();
+        } while (CheckNum(age, out intage));
+
+        Console.WriteLine("pet");
+        var petinput = Console.ReadLine();
+        bool pet = petinput == "да";
+        int petmany = 0;
+        string[] petname = {};
+        if (pet)
+        {
+            Console.WriteLine("petmany");
+            petmany = Convert.ToInt32(Console.ReadLine());
+            petname = Petname(petmany);
         }
-        return result;
+        Console.WriteLine("colormany");
+        int colormany = Convert.ToInt32(Console.ReadLine());
+        Favcolors(colormany);
+
+        return (firstName, lastName, intage);
     }
 
-    static void ShowArray(int[] array, bool isSort = false)
+    static string[] Petname(int petmany)
     {
-        var temp = array;
-        if (isSort)
+        var petname = new string[petmany];
+        for(int i = 0; i < petname.Length; i++)
         {
-            SortArray(array);
+            Console.WriteLine("name");
+            petname[i] = Console.ReadLine();
         }
-
-        foreach (var item in temp)
-        {
-            Console.WriteLine(item);
-        }
+        return petname;
     }
 
-    public static void Main(string[] args)
+    static string[] Favcolors(int colors)
     {
-        var array = GetArrayFromConsole(10);
-        ShowArray(array, true);
+        string[] favcolors = new string[colors];
+        Console.WriteLine($"Введите {colors} любимых цвета пользователя");
+
+        for (int i = 0; i < favcolors.Length; i++)
+        {
+            favcolors[i] = Console.ReadLine();
+        }
+        return favcolors;
+    }
+
+    static void Main(string[] args)
+    {
+        Console.WriteLine(GetUserData());
     }
 }
+
