@@ -1,28 +1,30 @@
-﻿using System;
+﻿class Bus
+{
+    public int? Load;
 
-class MainClass {
-  static void Main(string[] args) {
-  Console.WriteLine("Напишите что-то");
-  var str = Console.ReadLine();
-
-  Console.WriteLine("Укажите глубину эха");
-  var deep = int.Parse(Console.ReadLine());
-
-  Echo(str, deep);
-
-  Console.ReadKey();
+    public void PrintStatus()
+    {
+        if (Load.HasValue && Load > 0)
+        {
+            Console.WriteLine($"В автобусе {Load} пассажиров.");
+        }
+        else
+        {
+            Console.WriteLine("Автобус пуст.");
+        }
+    }
 }
+class Program
+{
+    static void Main()
+    {
+        Bus bus1 = new Bus { Load = 10 };
+        bus1.PrintStatus(); // Вывод: В автобусе 10 пассажиров.
 
-static void Echo(string saidworld, int deep) {
-  var modif = saidworld;
-  if (modif.Length > 2) {
-    modif = modif.Remove(0,2);
-  }
-  Console.BackgroundColor = (ConsoleColor)deep;
-  Console.WriteLine("..." + modif);
+        Bus bus2 = new Bus { Load = 0 };
+        bus2.PrintStatus(); // Вывод: Автобус пуст.
 
-  if (deep > 1) {
-    Echo(modif, deep - 1);
-  }
- }
+        Bus bus3 = new Bus { Load = null };
+        bus3.PrintStatus(); // Вывод: Автобус пуст.
+    }
 }
