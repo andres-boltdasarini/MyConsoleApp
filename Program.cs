@@ -10,6 +10,7 @@ class DerivedClass : BaseClass
 {
     public override void Display()
     {
+        base.Display();
         Console.WriteLine("Метод класса DerivedClass");
     }
 }
@@ -17,8 +18,8 @@ class Program
 {
     static void Main()
     {
-        DerivedClass bus1 = new DerivedClass { };
-        bus1.Display();
+        DerivedClass obj = new DerivedClass();
+        obj.Display();
 
     }
 }
