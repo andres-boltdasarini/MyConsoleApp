@@ -1,41 +1,53 @@
-﻿class Obj
-{
-    public int Value;
+﻿using System;
 
-    public static Obj operator +(Obj a, Obj b)
-    {
-        return new Obj
-        {
-            Value = a.Value + b.Value
-        };
-    }
-    public static Obj operator -(Obj a, Obj b)
-    {
-        return new Obj
-        {
-            Value = a.Value - b.Value
-        };
-    }
-}
 class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
-        // Создаем два объекта класса Obj
-        Obj obj1 = new Obj { Value = 10 };
-        Obj obj2 = new Obj { Value = 5 };
+        // Создаем массив для демонстрации
+        int[] numbers = { 10, 20, 30, 40, 50 };
 
-        // Используем перегруженный оператор +
-        Obj sum = obj1 + obj2;
-        Console.WriteLine($"obj1 + obj2 = {sum.Value}"); // Выведет: 15
+        // Создаем экземпляр нашего класса с индексатором
+        IndexingClass indexer = new IndexingClass(numbers);
 
-        // Используем перегруженный оператор -
-        Obj difference = obj1 - obj2;
-        Console.WriteLine($"obj1 - obj2 = {difference.Value}"); // Выведет: 5
+        // Демонстрируем работу индексатора
+        Console.WriteLine("Элемент с индексом 2: " + indexer[2]); // Выведет 30
 
-        // Можно также делать цепочки операций
-        Obj obj3 = new Obj { Value = 3 };
-        Obj result = obj1 + obj2 - obj3;
-        Console.WriteLine($"obj1 + obj2 - obj3 = {result.Value}"); // Выведет: 12
+        // Изменяем значение через индексатор
+        indexer[3] = 100;
+        Console.WriteLine("Измененный элемент с индексом 3: " + indexer[3]); // Выведет 100
+
+        // Демонстрируем обработку ошибок
+        try
+        {
+            Console.WriteLine("Попытка доступа к несуществующему индексу: " + indexer[10]);
+        }
+        catch (IndexOutOfRangeException ex)
+        {
+            Console.WriteLine("Ошибка: " + ex.Message);
+        }
+    }
+}
+
+class IndexingClass
+{
+    private int[] array;
+
+    public IndexingClass(int[] array)
+    {
+        this.array = array;
+    }
+
+    public int this[int index]
+    {
+        get
+        {
+            return array[index];
+        }
+
+        set
+        {
+            array[index] = value;
+        }
     }
 }
