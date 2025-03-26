@@ -4,50 +4,61 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Создаем массив для демонстрации
-        int[] numbers = { 10, 20, 30, 40, 50 };
+        // Instantiate an electric car and gas car
+        ElectricCar electricCar = new ElectricCar();
+        GasCar gasCar = new GasCar();
 
-        // Создаем экземпляр нашего класса с индексатором
-        IndexingClass indexer = new IndexingClass(numbers);
+        // Create car parts
+        Battery battery = new Battery();
+        Differential differential = new Differential();
+        Wheel wheel = new Wheel();
 
-        // Демонстрируем работу индексатора
-        Console.WriteLine("Элемент с индексом 2: " + indexer[2]); // Выведет 30
+        // Change parts for electric car
+        electricCar.ChangePart(battery);
+        electricCar.ChangePart(differential);
+        electricCar.ChangePart(wheel);
 
-        // Изменяем значение через индексатор
-        indexer[3] = 100;
-        Console.WriteLine("Измененный элемент с индексом 3: " + indexer[3]); // Выведет 100
+        // Change parts for gas car
+        gasCar.ChangePart(battery);  // Assuming GasCar can also use a Battery
+        gasCar.ChangePart(differential);
+        gasCar.ChangePart(wheel);
 
-        // Демонстрируем обработку ошибок
-        try
-        {
-            Console.WriteLine("Попытка доступа к несуществующему индексу: " + indexer[10]);
-        }
-        catch (IndexOutOfRangeException ex)
-        {
-            Console.WriteLine("Ошибка: " + ex.Message);
-        }
+        Console.WriteLine("Parts changed successfully.");
     }
 }
+abstract class Engine { }
 
-class IndexingClass
+class ElectricEngine : Engine { }
+
+class GasEngine : Engine { }
+
+abstract class CarPart { }
+
+class Battery : CarPart { }
+
+class Differential : CarPart { }
+
+class Wheel : CarPart { }
+
+abstract class Car<TEngine> where TEngine : Engine
 {
-    private int[] array;
+	public TEngine Engine;
 
-    public IndexingClass(int[] array)
-    {
-        this.array = array;
-    }
+	public abstract void ChangePart<TPart>(TPart newPart) where TPart : CarPart;
+}
 
-    public int this[int index]
-    {
-        get
-        {
-            return array[index];
-        }
+class ElectricCar : Car<ElectricEngine>
+{
+	public override void ChangePart<TPart>(TPart newPart)
+	{
 
-        set
-        {
-            array[index] = value;
-        }
-    }
+	}
+}
+
+class GasCar : Car<GasEngine>
+{
+	public override void ChangePart<TPart>(TPart newPart)
+	{
+
+	}
 }
