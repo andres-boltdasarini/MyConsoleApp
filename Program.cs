@@ -4,61 +4,70 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Instantiate an electric car and gas car
-        ElectricCar electricCar = new ElectricCar();
-        GasCar gasCar = new GasCar();
+        // Создаем объект HomeDelivery
+        HomeDelivery homeDelivery = new HomeDelivery
+        {
+            Address = "123 Main St",
+            Telephone = "555-1234"
+        };
 
-        // Create car parts
-        Battery battery = new Battery();
-        Differential differential = new Differential();
-        Wheel wheel = new Wheel();
+        // Создаем объект Order
+        Order<HomeDelivery, string> order = new Order<HomeDelivery, string>
+        {
+            Delivery = homeDelivery,
+            Number = 1,
+            Description = "Order for home delivery"
+        };
 
-        // Change parts for electric car
-        electricCar.ChangePart(battery);
-        electricCar.ChangePart(differential);
-        electricCar.ChangePart(wheel);
-
-        // Change parts for gas car
-        gasCar.ChangePart(battery);  // Assuming GasCar can also use a Battery
-        gasCar.ChangePart(differential);
-        gasCar.ChangePart(wheel);
-
-        Console.WriteLine("Parts changed successfully.");
+        // Отображаем адрес доставки
+        order.DisplayAddress();
     }
 }
-abstract class Engine { }
 
-class ElectricEngine : Engine { }
-
-class GasEngine : Engine { }
-
-abstract class CarPart { }
-
-class Battery : CarPart { }
-
-class Differential : CarPart { }
-
-class Wheel : CarPart { }
-
-abstract class Car<TEngine> where TEngine : Engine
+abstract class Delivery
 {
-	public TEngine Engine;
-
-	public abstract void ChangePart<TPart>(TPart newPart) where TPart : CarPart;
+    public string Address { get; set; }
+    public string Telephone { get; set; }
 }
 
-class ElectricCar : Car<ElectricEngine>
+class HomeDelivery : Delivery
 {
-	public override void ChangePart<TPart>(TPart newPart)
-	{
-
-	}
+    // Дополнительная логика для домашней доставки (если нужна)
 }
 
-class GasCar : Car<GasEngine>
+class PickPointDelivery : Delivery
 {
-	public override void ChangePart<TPart>(TPart newPart)
-	{
-
-	}
+    // Дополнительная логика для доставки через пункты выдачи (если нужна)
 }
+
+class ShopDelivery : Delivery
+{
+    // Дополнительная логика для доставки в магазин (если нужна)
+}
+
+class Order<TDelivery, TStruct> where TDelivery : Delivery
+{
+    class Product
+    {
+        // Логика продукта (если нужна)
+    }
+
+    public TDelivery Delivery { get; set; }
+
+    public int Number { get; set; }
+
+    public string Description { get; set; }
+
+    public void DisplayAddress()
+    {
+        Console.WriteLine(Delivery.Address);
+    }
+}
+
+  // ... Другие поля
+
+//построить систему классов
+//идти «внутрь» заказа и создавать связанные с ним сущности
+//Заказ может содержать класс Product для описания товара
+//создать какие-то общие используемые классы, которые облегчат работу, например, для адреса или мобильного телефона компании и прочего
+//
