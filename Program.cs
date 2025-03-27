@@ -4,70 +4,113 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Создаем объект HomeDelivery
-        HomeDelivery homeDelivery = new HomeDelivery
+        // Create some products
+        Product[] products = new Product[]
         {
-            Address = "123 Main St",
-            Telephone = "555-1234"
+            new Computer(),
+            new Computer()
         };
+        products[0].SetData("Laptop", 1000, "Intel i5");
+        products[1].SetData("Desktop", 1500, "Intel i7");
 
-        // Создаем объект Order
+        // Create a delivery
+        HomeDelivery delivery = new HomeDelivery("John Doe");
+        delivery.SetCourierName("Express Courier");
+
+        // Create an order
         Order<HomeDelivery, string> order = new Order<HomeDelivery, string>
         {
-            Delivery = homeDelivery,
+            Delivery = delivery,
+            Struct = "Order Struct",
             Number = 1,
-            Description = "Order for home delivery"
+            Description = "Sample Order",
+            Products = products
         };
 
-        // Отображаем адрес доставки
+        Console.WriteLine($"Order Total Cost: {order.CalculateCost()}");
         order.DisplayAddress();
+    }
+}
+
+static class OrderCalculator
+{
+    public static int CostCalculate(Product[] products)
+    {
+        int total = 0;
+        for (int i = 0; i < products.Length; i++)
+        {
+            total += products[i].Cost;
+        }
+        return total;
     }
 }
 
 abstract class Delivery
 {
-    public string Address { get; set; }
-    public string Telephone { get; set; }
+    public Address Address = new Address();
+    public Phone Phones = new Phone();
 }
 
 class HomeDelivery : Delivery
 {
-    // Дополнительная логика для домашней доставки (если нужна)
-}
+    public string CourierName { get; private set; }
 
-class PickPointDelivery : Delivery
-{
-    // Дополнительная логика для доставки через пункты выдачи (если нужна)
-}
-
-class ShopDelivery : Delivery
-{
-    // Дополнительная логика для доставки в магазин (если нужна)
+    public void SetCourierName(string courierName) { CourierName = courierName; }
+    public HomeDelivery(string name) { CourierName = name; }
 }
 
 class Order<TDelivery, TStruct> where TDelivery : Delivery
 {
-    class Product
-    {
-        // Логика продукта (если нужна)
-    }
-
     public TDelivery Delivery { get; set; }
-
+    public TStruct Struct { get; set; }
     public int Number { get; set; }
-
     public string Description { get; set; }
+    public Product[] Products { get; set; }
 
     public void DisplayAddress()
     {
-        Console.WriteLine(Delivery.Address);
+        Console.WriteLine(Delivery.Address?.AddressName ?? "Address not set.");
+    }
+
+    public int CalculateCost()
+    {
+        return OrderCalculator.CostCalculate(Products);
     }
 }
 
-  // ... Другие поля
+abstract class Product
+{
+    protected string Name;
+    public int Cost { get; private set; }
 
-//построить систему классов
-//идти «внутрь» заказа и создавать связанные с ним сущности
-//Заказ может содержать класс Product для описания товара
-//создать какие-то общие используемые классы, которые облегчат работу, например, для адреса или мобильного телефона компании и прочего
-//
+    public virtual void SetData(string name, int cost, object data)
+    {
+        Name = name;
+        Cost = cost;
+    }
+}
+
+class Computer : Product
+{
+    string ProcessorName;
+
+    public override void SetData(string name, int cost, object data)
+    {
+        base.SetData(name, cost, data);
+
+        if (data is string processorData)
+        {
+            ProcessorName = processorData;
+        }
+    }
+}
+
+class Address
+{
+    public string AddressName { get; set; } = "Default Address";
+}
+
+class Phone
+{
+    public int PhoneNumber { get; set; }
+}
