@@ -22,13 +22,13 @@ class Program
         {
             Delivery = delivery,
             Struct = "Order Struct",
-            Number = 1,
-            Description = "Sample Order",
-            Products = products
+            number = 1,
+            description = "Sample Order",
+            products = products
         };
 
-        Console.WriteLine($"Order Total Cost: {order.CalculateCost()}");
-        order.DisplayAddress();
+        Console.WriteLine($"Order Total Cost: {order.Cost}");
+        order.DisplayAdress();
     }
 }
 
@@ -37,7 +37,7 @@ static class OrderCalculator
     public static int CostCalculate(Product[] products)
     {
         int total = 0;
-        for (int i = 0; i < products.Length; i++)
+        for (int i = 0; i<products.Length; i++)
         {
             total += products[i].Cost;
         }
@@ -47,8 +47,8 @@ static class OrderCalculator
 
 abstract class Delivery
 {
-    public Address Address = new Address();
-    public Phone Phones = new Phone();
+    public Adress address = new();
+    public Phone phones = new Phone();
 }
 
 class HomeDelivery : Delivery
@@ -56,61 +56,87 @@ class HomeDelivery : Delivery
     public string CourierName { get; private set; }
 
     public void SetCourierName(string courierName) { CourierName = courierName; }
-    public HomeDelivery(string name) { CourierName = name; }
+    public HomeDelivery(string courierName) { CourierName = courierName; }
+}
+
+class PickPointDelivery : Delivery
+{
+    public int PickPointNumber { get; private set; }
+    public void SetPointNumber(int pickPointNumber) { PickPointNumber = pickPointNumber; }
+    //construct vs init
+}
+
+class ShopDelivery : Delivery
+{
+    public string? ShopName { get; private set; }
+    //generic propr
+    public void SetShopName(string shopName) { ShopName = shopName; }
 }
 
 class Order<TDelivery, TStruct> where TDelivery : Delivery
 {
+    //обобщение 2 типов?
     public TDelivery Delivery { get; set; }
     public TStruct Struct { get; set; }
-    public int Number { get; set; }
-    public string Description { get; set; }
-    public Product[] Products { get; set; }
+    public int number;
+    public string description;
+    public Product[] products;
 
-    public void DisplayAddress()
+    public void DisplayAdress()
     {
-        Console.WriteLine(Delivery.Address?.AddressName ?? "Address not set.");
+        if (Delivery.address != null)
+            Console.WriteLine(Delivery.address.AdressName);
+        else
+            Console.WriteLine("Address not set.");
     }
-
-    public int CalculateCost()
-    {
-        return OrderCalculator.CostCalculate(Products);
-    }
+    public int CalculateCost(){
+        return OrderCalculator.CostCalculate(products);
+    } 
+    //как использовать статик метод?
 }
 
 abstract class Product
 {
-    protected string Name;
+    protected string name;
     public int Cost { get; private set; }
 
     public virtual void SetData(string name, int cost, object data)
     {
-        Name = name;
+        this.name = name;
         Cost = cost;
     }
 }
 
-class Computer : Product
-{
-    string ProcessorName;
-
+class Computer: Product {
+    string processorName;
     public override void SetData(string name, int cost, object data)
     {
         base.SetData(name, cost, data);
-
-        if (data is string processorData)
-        {
-            ProcessorName = processorData;
-        }
+        //подробнее про base
+        if (data != null && data is string) processorName = (string)data;
+        //корректно присвоить значение data
     }
 }
 
-class Address
+class Motherboard {
+    private Computer computer;
+
+    public Motherboard(){
+        computer = new Computer();
+    }
+}
+class Memory
 {
-    public string AddressName { get; set; } = "Default Address";
+    private Computer computer;
+    public Memory (Computer computer) => this.computer = computer;
+    //лямбда для обнострочной записи
+}
+class Adress
+{
+    public string AdressName { get; private set; }
 }
 
 class Phone
 {
-    public int PhoneNumber { get; set; }
+    public int PhoneNumber { get; private set; }
 }
