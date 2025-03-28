@@ -1,53 +1,4 @@
-﻿
-
-class Program
-{
-    static void Main(string[] args)
-    {
-        // Create some products
-        Product[] products = new Product[]
-        {
-            new Computer(),
-            new Computer()
-        };
-        products[0].SetData("Laptop", 1000, "Intel i5");
-        products[1].SetData("Desktop", 1500, "Intel i7");
-
-        // Create a delivery
-        HomeDelivery delivery = new HomeDelivery("John Doe");
-        delivery.SetCourierName("Express Courier");
-
-        // Create an order
-        Order<HomeDelivery, string> order = new Order<HomeDelivery, string>
-        {
-            Delivery = delivery,
-            Struct = "Order Struct",
-            number = 999984356,
-            description = "Sample Order",
-            products = products
-        };
-
-        Console.WriteLine($"Order Total Cost: {order.Cost}");
-        order.DisplayAdress();
-        order.CalculateCost();
-        HomeDelivery homeDelivery = new HomeDelivery("kile");
-        homeDelivery.SetCourierName("kile");
-        Console.WriteLine("Назначенный курьер: " + homeDelivery.CourierName.Id);
-        Console.WriteLine("Номер заказа: " + order.number);
-        // Использование индексатора для доступа к продуктам
-        Console.WriteLine("Первый продукт (стоимость) в заказе: " + order[0].Cost); // Доступ через индексатор
-        Console.WriteLine("Второй продукт (стоимость) в заказе: " + order[1].Cost); // Доступ через индексатор
-        Box box1 = new Box(5);    // Коробка весом 5 кг
-        Box box2 = new Box(3);    // Коробка весом 3 кг
-
-        // Используем перегруженный оператор +
-        Box combinedBox = box1 + box2;
-
-        Console.WriteLine($"Общий вес: {combinedBox.Weight} кг");  // Выведет: Общий вес: 8 кг
-    }
-}
-
-static class OrderCalculator
+﻿static class OrderCalculator
 {
     public static int CostCalculate(Product[] products)
     {
@@ -105,7 +56,7 @@ static class ExtentonOrder
     public static Product SetProd(this Product prod)
     {
         int obj = 1;
-        prod.SetData("test", 345, obj);
+        prod.SetData("netbook", 345, obj);
         return prod;
     }
 }
