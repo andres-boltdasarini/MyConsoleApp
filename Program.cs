@@ -122,15 +122,22 @@ class Order<TDelivery, TStruct> where TDelivery : Delivery
     {
         get
         {
-            if (index < 0 || index >= products.Length)
-                throw new IndexOutOfRangeException($"Индекс {index} выходит за границы массива продуктов");
-            return products[index];
+            if (index >= 0 && index < products.Length)
+            {
+                return products[index];
+            }
+            else
+            {
+                return null;
+            }
+
         }
         set
         {
-            if (index < 0 || index >= products.Length)
-                throw new IndexOutOfRangeException($"Индекс {index} выходит за границы массива продуктов");
-            products[index] = value;
+            if (index >= 0 && index < products.Length)
+            {
+                products[index] = value;
+            }
         }
     }
 
@@ -198,14 +205,13 @@ class Phone
 }
 class Box
 {
-    public int Weight { get; }  // Вес коробки в кг
+    public int Weight { get; }
 
     public Box(int weight)
     {
         Weight = weight;
     }
 
-    // Перегрузка оператора + для сложения двух коробок
     public static Box operator +(Box a, Box b)
     {
         return new Box(a.Weight + b.Weight);
