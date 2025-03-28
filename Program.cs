@@ -22,7 +22,7 @@ class Program
         {
             Delivery = delivery,
             Struct = "Order Struct",
-            number = 1,
+            number = 999984356,
             description = "Sample Order",
             products = products
         };
@@ -32,11 +32,18 @@ class Program
         order.CalculateCost();
         HomeDelivery homeDelivery = new HomeDelivery("kile");
         homeDelivery.SetCourierName("kile");
-        Console.WriteLine(homeDelivery.CourierName.Id);
-        Console.WriteLine(order.number);
+        Console.WriteLine("Назначенный курьер: " + homeDelivery.CourierName.Id);
+        Console.WriteLine("Номер заказа: " + order.number);
         // Использование индексатора для доступа к продуктам
-        Console.WriteLine("Первый продукт в заказе: " + order[0].Cost); // Доступ через индексатор
-        Console.WriteLine("Второй продукт в заказе: " + order[1].Cost); // Доступ через индексатор
+        Console.WriteLine("Первый продукт (стоимость) в заказе: " + order[0].Cost); // Доступ через индексатор
+        Console.WriteLine("Второй продукт (стоимость) в заказе: " + order[1].Cost); // Доступ через индексатор
+        Box box1 = new Box(5);    // Коробка весом 5 кг
+        Box box2 = new Box(3);    // Коробка весом 3 кг
+
+        // Используем перегруженный оператор +
+        Box combinedBox = box1 + box2;
+
+        Console.WriteLine($"Общий вес: {combinedBox.Weight} кг");  // Выведет: Общий вес: 8 кг
     }
 }
 
@@ -58,7 +65,6 @@ abstract class Delivery
 {
     public class Naming<Tid>
     {
-        //обобщенные свойства;
         public Tid? Id { get; private set; }
         public void SetId(Tid id) => Id = id;
     }
@@ -69,30 +75,21 @@ abstract class Delivery
 
 class HomeDelivery : Delivery
 {
-    //public string CourierName { get; private set; }
-
     public void SetCourierName(string courierName) { CourierName.SetId(courierName); }
     public Naming<String> CourierName = new Naming<String>();
-    //конструктор класса с параметрами;
     public HomeDelivery(string courierName) { CourierName.SetId(courierName); }
 
 }
 
 class PickPointDelivery : Delivery
 {
-    //public int PickPointNumber { get; private set; }
     public void SetPointNumber(int pickPointNumber) { PickPointNumber.SetId(pickPointNumber); }
     public Naming<int> PickPointNumber = new Naming<int>();
     public PickPointDelivery(int pickPointNumber) { PickPointNumber.SetId(pickPointNumber); }
-
-
-    //construct vs init
 }
 
 class ShopDelivery : Delivery
 {
-    //public string? ShopName { get; private set; }
-    //generic propr
     public void SetShopName(string shopName) { ShopName.SetId(shopName); }
     public Naming<String> ShopName = new Naming<String>();
     public ShopDelivery(string shopName) { ShopName.SetId(shopName); }
@@ -114,15 +111,13 @@ static class ExtentonOrder
 }
 class Order<TDelivery, TStruct> where TDelivery : Delivery
 {
-    //обобщение 2 типов
-    public TDelivery Delivery { get; set; }
-    public TStruct Struct { get; set; }
+    public TDelivery? Delivery { get; set; }
+    public TStruct? Struct { get; set; }
     public int number;
-    public string description;
-    public Product[] products;
+    public string? description;
+    public Product[]? products;
     private int cost;
     public int Cost => cost;
-    //индексатор
     public Product this[int index]
     {
         get
@@ -153,12 +148,11 @@ class Order<TDelivery, TStruct> where TDelivery : Delivery
         products[0].SetProd();
         return cost;
     }
-    //как использовать статик метод?
 }
 
 abstract class Product
 {
-    protected string name;
+    protected string? name;
     public int Cost { get; private set; }
 
     public virtual void SetData(string name, int cost, object data)
@@ -171,22 +165,19 @@ abstract class Product
 class Computer : Product
 {
     public string? processorName { get; private set; }
-    //переопределений методов;
     public override void SetData(string name, int cost, object data)
     {
         base.SetData(name, cost, data);
-        //подробнее про base
         if (data != null && data is string) processorName = (string)data;
         else processorName = "empty";
-        //корректно присвоить значение data
     }
 }
 
 class Motherboard
 {
     private Computer computer;
-   
-    public Motherboard()  //композиция
+
+    public Motherboard()
     {
         computer = new Computer();
     }
@@ -194,15 +185,29 @@ class Motherboard
 class Memory
 {
     private Computer computer;
-    public Memory(Computer computer) => this.computer = computer;  //агрегация
-    //лямбда для однострочной записи
+    public Memory(Computer computer) => this.computer = computer;
 }
 class Adress
 {
-    public string AdressName { get; private set; }
+    public string? AdressName { get; private set; }
 }
 
 class Phone
 {
-    public int PhoneNumber; //{ get; private set; }
+    public int PhoneNumber;
+}
+class Box
+{
+    public int Weight { get; }  // Вес коробки в кг
+
+    public Box(int weight)
+    {
+        Weight = weight;
+    }
+
+    // Перегрузка оператора + для сложения двух коробок
+    public static Box operator +(Box a, Box b)
+    {
+        return new Box(a.Weight + b.Weight);
+    }
 }
