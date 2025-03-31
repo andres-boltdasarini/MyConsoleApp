@@ -1,61 +1,59 @@
-﻿using System;
-using System.IO;
-
-class BinaryExperiment
+﻿[Serializable]
+public class Contact
 {
-    //const string SettingsFileName = "Settings.cfg";
-    //var fileInfo = new FileInfo("/Users/user/source/repos/MyConsoleApp/Program.cs");
-    const string SettingsFileName = @"/Users/user/source/repos/MyConsoleApp/BinaryFile.bin"; // Укажем путь
+    public string Name { get; set; }
+    public long PhoneNumber { get; set; }
+    public string Email { get; set; }
 
-    static void Main()
+    public Contact(string name, long phoneNumber, string email)
     {
-        // Пишем
-
-        // Считываем
-        ReadValues();
-        WriteValues();
+        Name = name;
+        PhoneNumber = phoneNumber;
+        Email = email;
     }
 
-    static void WriteValues()
+    // Метод для сериализации объекта в бинарный формат
+    public void Serialize(BinaryWriter writer)
     {
-        if (File.Exists(SettingsFileName))
-        {
-            // Создаем объект BinaryWriter и указываем, куда будет направлен поток данных
-            using (BinaryWriter writer = new BinaryWriter(File.Open(SettingsFileName, FileMode.Create)))
-            {
-                // Записываем данные в разном формате
-
-                writer.Write($"Файл изменен {DateTime.Now} на компьютере c ОС {Environment.OSVersion}");
-
-            }
-        }
+        writer.Write(Name);
+        writer.Write(PhoneNumber);
+        writer.Write(Email);
     }
 
-    static void ReadValues()
+    // Метод для десериализации объекта из бинарного формата
+    public static Contact Deserialize(BinaryReader reader)
     {
-        //float FloatValue;
-        string StringValue;
-        //int IntValue;
-        //bool BooleanValue;
+        string name = reader.ReadString();
+        long phoneNumber = reader.ReadInt64();
+        string email = reader.ReadString();
 
-        if (File.Exists(SettingsFileName))
+        return new Contact(name, phoneNumber, email);
+    }
+}
+
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Contact contact = new Contact("John Doe", 1234567890, "john.doe@example.com");
+
+        // Сериализация объекта в бинарный файл
+        using (FileStream fs = new FileStream("contact.bin", FileMode.Create))
+        using (BinaryWriter writer = new BinaryWriter(fs))
         {
-            // Создаем объект BinaryReader и инициализируем его возвратом метода File.Open.
-            using (BinaryReader reader = new BinaryReader(File.Open(SettingsFileName, FileMode.Open)))
-            {
-                // Применяем специализированные методы Read для считывания соответствующего типа данных
-                //FloatValue = reader.ReadSingle();
-                StringValue = reader.ReadString();
-                //IntValue = reader.ReadInt32();
-                //BooleanValue = reader.ReadBoolean();
-            }
-
-            Console.WriteLine("Из файла считано:");
-
-            //Console.WriteLine("Дробь: " + FloatValue);
-            Console.WriteLine("Строка: " + StringValue);
-            //Console.WriteLine("Целое: " + IntValue);
-            //Console.WriteLine("Булево значение: " + BooleanValue);
+            contact.Serialize(writer);
         }
+
+        // Десериализация объекта из бинарного файла
+        Contact deserializedContact;
+        using (FileStream fs = new FileStream("contact.bin", FileMode.Open))
+        using (BinaryReader reader = new BinaryReader(fs))
+        {
+            deserializedContact = Contact.Deserialize(reader);
+        }
+
+        // Вывод десериализованных данных
+        Console.WriteLine($"Name: {deserializedContact.Name}, Phone: {deserializedContact.PhoneNumber}, Email: {deserializedContact.Email}");
     }
 }
