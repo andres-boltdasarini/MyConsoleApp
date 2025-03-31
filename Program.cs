@@ -1,17 +1,25 @@
-﻿using System;
-using System.IO;
-class FileWriter
-{
-    public static void Main()
-    {
-        string filePath = @"/Users/user/source/repos/MyConsoleApp/Program.cs"; // Укажем путь
+﻿
+        using System;
+        using System.IO;
 
-        // Откроем файл и прочитаем его содержимое
-        using (StreamReader sr = File.OpenText(filePath))
+
+class Task2
+    {
+        public static void Main()
         {
-            string str = "";
-            while ((str = sr.ReadLine()) != null)
-                Console.WriteLine(str);
+            var fileInfo = new FileInfo("/Users/user/source/repos/MyConsoleApp/Program.cs");
+
+            using (StreamWriter sw = fileInfo.AppendText())
+            {
+                sw.WriteLine($"// Время запуска: {DateTime.Now}");
+            }
+
+            using (StreamReader sr = fileInfo.OpenText())
+            {
+                string str = "";
+                while ((str = sr.ReadLine()) != null)
+                    Console.WriteLine(str);
+
+            }
         }
-    }
-}
+    }// Время запуска: 31.03.2025 14:47:54
