@@ -1,59 +1,44 @@
-﻿[Serializable]
-public class Contact
+﻿using System;
+
+public class MyCustomException : Exception
 {
-    public string Name { get; set; }
-    public long PhoneNumber { get; set; }
-    public string Email { get; set; }
+    private string _message;
+    private string _helpLink;
 
-    public Contact(string name, long phoneNumber, string email)
+    public MyCustomException(string message, string helpLink)
     {
-        Name = name;
-        PhoneNumber = phoneNumber;
-        Email = email;
+        _message = message;
+        _helpLink = helpLink;
     }
 
-    // Метод для сериализации объекта в бинарный формат
-    public void Serialize(BinaryWriter writer)
+    public override string Message
     {
-        writer.Write(Name);
-        writer.Write(PhoneNumber);
-        writer.Write(Email);
+        get { return _message; }
     }
 
-    // Метод для десериализации объекта из бинарного формата
-    public static Contact Deserialize(BinaryReader reader)
+    public override string HelpLink
     {
-        string name = reader.ReadString();
-        long phoneNumber = reader.ReadInt64();
-        string email = reader.ReadString();
-
-        return new Contact(name, phoneNumber, email);
+        get { return _helpLink; }
+        set { _helpLink = value; }
     }
 }
 
-
-class Program
+// Пример использования
+public class Program
 {
-    static void Main(string[] args)
+    public static void Main()
     {
-        Contact contact = new Contact("John Doe", 1234567890, "john.doe@example.com");
-
-        // Сериализация объекта в бинарный файл
-        using (FileStream fs = new FileStream("contact.bin", FileMode.Create))
-        using (BinaryWriter writer = new BinaryWriter(fs))
+        try
         {
-            contact.Serialize(writer);
+            throw new MyCustomException(
+                "Это пользовательское исключение!",
+                "https://example.com/help"
+            );
         }
-
-        // Десериализация объекта из бинарного файла
-        Contact deserializedContact;
-        using (FileStream fs = new FileStream("contact.bin", FileMode.Open))
-        using (BinaryReader reader = new BinaryReader(fs))
+        catch (MyCustomException ex)
         {
-            deserializedContact = Contact.Deserialize(reader);
+            Console.WriteLine($"Ошибка: {ex.Message}");
+            Console.WriteLine($"Ссылка на справку: {ex.HelpLink}");
         }
-
-        // Вывод десериализованных данных
-        Console.WriteLine($"Name: {deserializedContact.Name}, Phone: {deserializedContact.PhoneNumber}, Email: {deserializedContact.Email}");
     }
 }
