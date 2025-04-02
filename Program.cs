@@ -1,44 +1,72 @@
 ﻿using System;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
-public class MyCustomException : Exception
+class Program
 {
-    private string _message;
-    private string _helpLink;
-
-    public MyCustomException(string message, string helpLink)
+    public static string[] smyckaSongs = new string[4] { "Intro", "Betrayed", "Mutated", "Wrecked" };
+    static void Main()
     {
-        _message = message;
-        _helpLink = helpLink;
-    }
+        string[] str = new string[1] { "" };
 
-    public override string Message
-    {
-        get { return _message; }
-    }
-
-    public override string HelpLink
-    {
-        get { return _helpLink; }
-        set { _helpLink = value; }
-    }
-}
-
-// Пример использования
-public class Program
-{
-    public static void Main()
-    {
-        try
+        while (true)
         {
-            throw new MyCustomException(
-                "Это пользовательское исключение!",
-                "https://example.com/help"
-            );
+            SimpleListenerExample(str);
         }
-        catch (MyCustomException ex)
+    }
+    public static Stream? output;
+    public static void SimpleListenerExample(string[] prefixes)
+    {
+        Random rnd = new Random();
+        
+        if (!HttpListener.IsSupported)
         {
-            Console.WriteLine($"Ошибка: {ex.Message}");
-            Console.WriteLine($"Ссылка на справку: {ex.HelpLink}");
+            Console.WriteLine("Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
+            return;
         }
+        // URI prefixes are required,
+        // for example "http://contoso.com:8080/index/".
+        if (prefixes == null || prefixes.Length == 0)
+            throw new ArgumentException("prefixes");
+
+        // Create a listener.
+        HttpListener listener = new HttpListener();
+        // Add the prefixes.
+        foreach (string s in prefixes)
+        {
+            listener.Prefixes.Add(s);
+        }
+        listener.Start();
+        string resp = smyckaSongs[ rnd.Next(4)];
+        Console.WriteLine("Listening...");
+        // Note: The GetContext method blocks while waiting for a request.
+        HttpListenerContext context = listener.GetContext();
+        HttpListenerRequest request = context.Request;
+        Console.WriteLine(request.HttpMethod);
+        // Obtain a response object.
+        HttpListenerResponse response = context.Response;
+        // Construct a response.
+        string responseString;
+        if (request.HttpMethod == "GET")
+            responseString = resp;
+        else if (request.HttpMethod == "POST")
+            responseString = "Fuck";
+        else responseString = "No";
+
+        byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+
+        // Get a response stream and write the response to it.
+
+        response.ContentLength64 = buffer.Length;
+
+        output = response.OutputStream;
+
+        output?.Write(buffer, 0, buffer.Length);
+
+        // You must close the output stream.
+        output?.Close();
+        listener.Stop();
     }
 }
