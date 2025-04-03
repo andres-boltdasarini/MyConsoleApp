@@ -1,22 +1,22 @@
-﻿namespace TryCatchPractices 
+﻿namespace DelegatePractices
 {
-  class Program 
-  {
-    static void Main(string[] args) {
+    class Program
+    {
+        delegate int CalculateDelegate(int a, int b);
+        static void Main(string[] args)
+        {
 
-      try 
-      {
-        throw new ArgumentOutOfRangeException("Сообщение об ошибке");
-      }
+            CalculateDelegate calcDelegate = Calculate;
+            int result = calcDelegate.Invoke(100, 30);
 
-      catch(ArgumentOutOfRangeException ex) {
-        Console.WriteLine(ex.Message);
-      }
+            Console.WriteLine(result);
+            Console.Read();
 
-      finally 
-      {
-        Console.Read();
-      }
+        }
+
+        static int Calculate(int a, int b)
+        {
+            return a - b;
+        }
     }
-  }
 }
