@@ -2,21 +2,39 @@
 {
     class Program
     {
-        delegate int CalculateDelegate(int a, int b);
+//delegate void ShowMessageDelegate();
+//delegate int SumDelegate(int a, int b, int c);
+//delegate bool CheckLengthDelegate(string _row);
         static void Main(string[] args)
         {
+Action showMessageDelegate = ShowMessage;
+showMessageDelegate.Invoke();
 
-            CalculateDelegate calcDelegate = Calculate;
-            int result = calcDelegate.Invoke(100, 30);
+Func < int,int,int,int > sumDelegate = Sum;
+int result = sumDelegate.Invoke(1, 30, 120);
+Console.WriteLine(result);
 
-            Console.WriteLine(result);
-            Console.Read();
+Predicate < string > checkLengthDelegate = CheckLength;
+bool status = checkLengthDelegate.Invoke("skill_factory");
+Console.WriteLine(status);
+
 
         }
 
-        static int Calculate(int a, int b)
-        {
-            return a - b;
-        }
+static void ShowMessage() 
+{
+  Console.WriteLine("Hello World!");
+}
+
+static int Sum(int a, int b, int c) 
+{
+  return a + b + c;
+}
+
+static bool CheckLength(string _row) 
+{
+  if (_row.Length > 3) return true;
+  return false;
+}
     }
 }
