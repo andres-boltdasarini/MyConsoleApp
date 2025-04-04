@@ -1,40 +1,31 @@
-﻿namespace DelegatePractices
+﻿public delegate void Notify();  // делегат
+public class ProcessBusinessLogic
 {
-    class Program
+    public event Notify ProcessCompleted; // событие
+
+    public void StartProcess()
     {
-//delegate void ShowMessageDelegate();
-//delegate int SumDelegate(int a, int b, int c);
-//delegate bool CheckLengthDelegate(string _row);
-        static void Main(string[] args)
-        {
-Action showMessageDelegate = ShowMessage;
-showMessageDelegate.Invoke();
+        Console.WriteLine("Процесс начат!");
+        OnProcessCompleted();
+    }
 
-Func < int,int,int,int > sumDelegate = Sum;
-int result = sumDelegate.Invoke(1, 30, 120);
-Console.WriteLine(result);
-
-Predicate < string > checkLengthDelegate = CheckLength;
-bool status = checkLengthDelegate.Invoke("skill_factory");
-Console.WriteLine(status);
-
-
-        }
-
-static void ShowMessage() 
-{
-  Console.WriteLine("Hello World!");
+    protected virtual void OnProcessCompleted() //protected virtual method
+    {
+        ProcessCompleted?.Invoke();
+    }
 }
-
-static int Sum(int a, int b, int c) 
+class Program
 {
-  return a + b + c;
-}
+    public static void Main()
+    {
+        ProcessBusinessLogic bl = new ProcessBusinessLogic();
+        bl.ProcessCompleted += bl_ProcessCompleted; // регистрируем событие
+        bl.StartProcess();
+    }
 
-static bool CheckLength(string _row) 
-{
-  if (_row.Length > 3) return true;
-  return false;
-}
+    // перехватчик событий
+    public static void bl_ProcessCompleted()
+    {
+        Console.WriteLine("Процесс завершён!");
     }
 }
