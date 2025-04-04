@@ -1,31 +1,61 @@
-﻿public delegate void Notify();  // делегат
-public class ProcessBusinessLogic
+﻿using System;
+
+public class MyCustomException : Exception
 {
-    public event Notify ProcessCompleted; // событие
+    private string _message;
 
-    public void StartProcess()
+    public MyCustomException(string message)
     {
-        Console.WriteLine("Процесс начат!");
-        OnProcessCompleted();
+        _message = message;
     }
 
-    protected virtual void OnProcessCompleted() //protected virtual method
+    public override string Message
     {
-        ProcessCompleted?.Invoke();
+        get { return _message; }
     }
+
 }
-class Program
+
+public class Program
 {
     public static void Main()
     {
-        ProcessBusinessLogic bl = new ProcessBusinessLogic();
-        bl.ProcessCompleted += bl_ProcessCompleted; // регистрируем событие
-        bl.StartProcess();
-    }
+        Exception[] exceptions = new Exception[] { 
+            new MyCustomException("my"),
+            new ArgumentNullException("not null"),
+            new FileNotFoundException("file not found", "file.txt"),
+            new FormatException("err data"),
+            new OverflowException("arph over")
+        };
 
-    // перехватчик событий
-    public static void bl_ProcessCompleted()
-    {
-        Console.WriteLine("Процесс завершён!");
+        foreach (var exception in exceptions)
+        {
+            try
+            {
+                throw exception;
+            }
+            catch (MyCustomException ex)
+            {
+                Console.WriteLine($"text: {ex.Message}");
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine($"text2: {ex.Message}");
+            }
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine($"text3: {ex.Message}, text3: {ex.FileName}");
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"text4: {ex.Message}");
+            }
+            catch (OverflowException ex)
+            {
+                Console.WriteLine($"text5: {ex.Message}");
+            }
+
+        }
+
     }
 }
