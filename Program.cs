@@ -1,37 +1,56 @@
 ﻿using System;
 
-public class Program
+interface ICalculator
 {
-    public static void Main()
+    public double Add(double a, double b);
+}
+
+class Calculator : ICalculator
+{
+    public double Add(double a, double b) => a + b;
+  
+}
+
+class Program
+{
+    static void Main()
     {
-        var user = new User();
-        var account = new Account();
-        IUpdater<Account> updater = new UserService();
-        var userService = new UserService();
-        userService.Update(user);
+        ICalculator calculator = new Calculator();
+        double a = GetValidNumber("первое");
+        double b = GetValidNumber("второе");
+        double sum = calculator.Add(a,b);
+        Console.WriteLine($"сумма {sum}");
     }
-}
 
-public class User
-{
-
-}
-
-public class Account : User
-{
-
-}
-public interface IUpdater<in T>
-{
-    void Update(T entity);
-}
-
-public class UserService: IUpdater<User>
-{
-    public void Update(User entity)
+    static double GetValidNumber(string prompt)
     {
-        Console.WriteLine("test");
-        Console.Read();
-            
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine($"Введите {prompt} число");
+                return GetNumberFromUser();
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Число не корректно");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+    }
+
+
+    static double GetNumberFromUser()
+    {
+        string? input = Console.ReadLine();
+        if (double.TryParse(input, out double number))
+        {
+            return number;
+        }
+        else throw new FormatException();
     }
 }
