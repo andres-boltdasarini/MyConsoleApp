@@ -1,81 +1,54 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 
-public interface ILogger
+class User
 {
-    void Event(string message);
-    void Error(string message);
-}
-
-public class Logger : ILogger
-{
-    public void Event(string message)
-    {
-        Console.BackgroundColor = ConsoleColor.Blue;
-        Console.ForegroundColor = ConsoleColor.Black;
-        Console.WriteLine(message);
-    }
-    public void Error(string message)
-    {
-        Console.BackgroundColor = ConsoleColor.Red;
-        Console.ForegroundColor = ConsoleColor.Black;
-        Console.WriteLine(message);
-    }
-}
-
-interface ICalculator
-{
-    public double Add(double a, double b);
-}
-
-class Calculator : ICalculator
-{
-    public double Add(double a, double b) => a + b;
-
+    public string Login { get; set; }
+    public string Name { get; set; }
+    public bool IsPremium { get; set; }
 }
 
 class Program
 {
-    static ILogger Logger { get; set; }
-    static void Main()
+    static void Main(string[] args)
     {
-        Logger = new Logger();
-
-
-        ICalculator calculator = new Calculator();
-        double a = GetValidNumber("первое", Logger);
-        double b = GetValidNumber("второе", Logger);
-        double sum = calculator.Add(a, b);
-        Logger.Event($"сумма {sum}");
-    }
-
-    static double GetValidNumber(string prompt, ILogger logger)
-    {
-        while (true)
+        // Пример списка пользователей
+        List<User> users = new List<User>
         {
-            try
+            new User { Login = "user1", Name = "Kile", IsPremium = true },
+            new User { Login = "user2", Name = "Mike", IsPremium = false },
+            new User { Login = "user3", Name = "Sam", IsPremium = false },
+            new User { Login = "user4", Name = "James", IsPremium = true }
+        };
+
+        // Обработка каждого пользователя
+        foreach (User user in users)
+        {
+            Console.WriteLine($"Привет, {user.Name}!");
+
+            if (!user.IsPremium)
             {
-                Logger.Event($"Введите {prompt} число"); 
-                return GetNumberFromUser();
+                ShowAds();
             }
-            catch (FormatException)
+            else
             {
-                Logger.Error("Число не корректно");
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.Message);
+                Console.WriteLine("реклама отключена");
             }
         }
-
     }
 
-    static double GetNumberFromUser()
+
+
+    static void ShowAds()
     {
-        string? input = Console.ReadLine();
-        if (double.TryParse(input, out double number))
-        {
-            return number;
-        }
-        else throw new FormatException();
+        Console.WriteLine("Посетите наш новый сайт с бесплатными играми free.games.for.a.fool.com");
+        Thread.Sleep(1000);
+
+        Console.WriteLine("Купите подписку на МыКомбо и слушайте музыку везде и всегда.");
+        Thread.Sleep(2000);
+
+        Console.WriteLine("Оформите премиум-подписку на наш сервис, чтобы не видеть рекламу.");
+        Thread.Sleep(3000);
     }
 }
