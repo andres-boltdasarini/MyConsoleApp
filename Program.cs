@@ -1,54 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
-class User
-{
-    public string Login { get; set; }
-    public string Name { get; set; }
-    public bool IsPremium { get; set; }
-}
+
 
 class Program
 {
     static void Main(string[] args)
     {
-        // Пример списка пользователей
-        List<User> users = new List<User>
-        {
-            new User { Login = "user1", Name = "Kile", IsPremium = true },
-            new User { Login = "user2", Name = "Mike", IsPremium = false },
-            new User { Login = "user3", Name = "Sam", IsPremium = false },
-            new User { Login = "user4", Name = "James", IsPremium = true }
-        };
+        Estimate(20);
+    }
 
-        // Обработка каждого пользователя
-        foreach (User user in users)
-        {
-            Console.WriteLine($"Привет, {user.Name}!");
+    static void CreateMatrix(int n)
+    {
+        var matrix = new int[n][];
 
-            if (!user.IsPremium)
+        for (int i = 0; i < n; i++)
+        {
+            matrix[i] = new int[n];
+        }
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
             {
-                ShowAds();
-            }
-            else
-            {
-                Console.WriteLine("реклама отключена");
+                matrix[i][j] = i + j;
             }
         }
     }
 
-
-
-    static void ShowAds()
+    static void Estimate(int n)
     {
-        Console.WriteLine("Посетите наш новый сайт с бесплатными играми free.games.for.a.fool.com");
-        Thread.Sleep(1000);
+        var Tm = new List<int>();
+        var timer = new Stopwatch();
 
-        Console.WriteLine("Купите подписку на МыКомбо и слушайте музыку везде и всегда.");
-        Thread.Sleep(2000);
+        for (int i = 0; i < n; i++)
+        {
+            timer.Restart();
+            CreateMatrix(10000);
+            timer.Stop();
 
-        Console.WriteLine("Оформите премиум-подписку на наш сервис, чтобы не видеть рекламу.");
-        Thread.Sleep(3000);
+            long elapsedMs = timer.ElapsedMilliseconds;
+            Console.WriteLine(elapsedMs);
+
+            Tm.Add((int)elapsedMs); // Добавляем в список, а не обращаемся по индексу
+            Tm.Sort(); // Сортируем (можно вынести за цикл, если не нужно на каждой итерации)
+
+            long mid = ((long)Tm[0] + Tm[Tm.Count - 1]) / 2; // Защита от переполнения
+            Console.WriteLine($"Медиана: {mid}");
+        }
     }
 }
