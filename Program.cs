@@ -1,49 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-
-
+using System.IO;
+class FileWriter;
 
 class Program
 {
     static void Main(string[] args)
     {
 
-        var summary = BenchmarkRunner.Run<Testing>();
-    }
-}
-public class Testing
-{
-    static int Iterations = 10000;
-    [Benchmark]
-    public string UseString()
-    {
-        string value = "";
+        var book = new List<List<string>>();
+        //string filePath = @"/Users/user/source/repos/MyConsoleApp/cdev_Text.txt";
+        string text = File.ReadAllText("C:\\Users\\user\\source\\repos\\MyConsoleApp\\cdev_Text.txt");
 
-        for (int i = 0; i < Iterations; i++)
-        {
-            value += i.ToString();
-            value += " ";
-        }
+        // Сохраняем символы-разделители в массив
+        char[] delimiters = new char[] { ' ', '\r', '\n' };
+        // разбиваем нашу строку текста, используя ранее перечисленные символы-разделители
+        string[] words = text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+        //Если между разделителями нет данных, метод может вернуть пустые строки.
+        //Чтобы их убрать, используйте StringSplitOptions.RemoveEmptyEntries
 
-        return value;
-    }
-
-    [Benchmark]
-    public string UseStringBuilder()
-    {
-        StringBuilder builder = new StringBuilder();
-
-        for (int i = 0; i < Iterations; i++)
-        {
-            builder.Append(i.ToString());
-            builder.Append(" ");
-        }
-
-        return builder.ToString();
+            Console.WriteLine(words.Length);
+        
     }
 }
