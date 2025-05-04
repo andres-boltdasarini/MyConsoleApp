@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 
 
 
@@ -10,6 +12,7 @@ class Program
     static void Main(string[] args)
     {
         Estimate(20);
+        var summary = BenchmarkRunner.Run<Testing>();
     }
 
     static void CreateMatrix(int n)
@@ -49,6 +52,29 @@ class Program
 
             long mid = ((long)Tm[0] + Tm[Tm.Count - 1]) / 2; // Защита от переполнения
             Console.WriteLine($"Медиана: {mid}");
+        }
+    }
+}
+public class Testing
+{
+    [Benchmark]
+    public void CreateMatrix()
+    {
+        int n = 10000;
+
+        var matrix = new int[n][];
+
+        for (int i = 0; i < n; i++)
+        {
+            matrix[i] = new int[n];
+        }
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                matrix[i][j] = i + j;
+            }
         }
     }
 }
