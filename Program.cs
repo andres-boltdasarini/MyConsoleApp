@@ -1,24 +1,46 @@
-﻿using System;
-using System.IO;
-class FileWriter;
+﻿using System.Collections;
 
-class Program
+namespace ArrayListExample
 {
-    static void Main(string[] args)
+    class Program
     {
+        static void Main(string[] args)
+        {
+            var arrayList = new ArrayList()
+           {
+               1,
+               "Андрей ",
+               "Сергей ",
+               300,
+           };
+            var x = Testo(arrayList);
+            Console.WriteLine(x[0]);
+            Console.WriteLine(x[1]);
+        }
 
-        var book = new List<List<string>>();
-        //string filePath = @"/Users/user/source/repos/MyConsoleApp/cdev_Text.txt";
-        string text = File.ReadAllText("C:\\Users\\user\\source\\repos\\MyConsoleApp\\cdev_Text.txt");
+        static ArrayList Testo(ArrayList input)
+        {
+            int suminpint = 0;
+            string textinp = "";
+            var result = new ArrayList();
 
-        // Сохраняем символы-разделители в массив
-        char[] delimiters = new char[] { ' ', '\r', '\n' };
-        // разбиваем нашу строку текста, используя ранее перечисленные символы-разделители
-        string[] words = text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-        //Если между разделителями нет данных, метод может вернуть пустые строки.
-        //Чтобы их убрать, используйте StringSplitOptions.RemoveEmptyEntries
+            foreach (var item in input)
+            {
+                if (item is int)
+                {
+                    suminpint += (int)item;
+                }
+                else if (item is string)
+                {
+                    textinp += item.ToString();
+                }
+            }
+            result.Add(suminpint);
+            result.Add(textinp);
+            return result;
 
-            Console.WriteLine(words.Length);
-        
+
+        }
+
     }
 }
