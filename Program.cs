@@ -4,43 +4,60 @@ namespace ArrayListExample
 {
     class Program
     {
+        static List<Contact> Book = new List<Contact>
+        {
+            new Contact("kile", 124, "@78"),
+            new Contact("mike", 233, "@45")
+        };
+
+        static Contact cn = new Contact("james", 233, "@45");
+        static Contact co = new Contact("mike", 233, "@45");
         static void Main(string[] args)
         {
-            var arrayList = new ArrayList()
-           {
-               1,
-               "Андрей ",
-               "Сергей ",
-               300,
-           };
-            var x = Testo(arrayList);
-            Console.WriteLine(x[0]);
-            Console.WriteLine(x[1]);
+            AddUnique(cn,Book);
         }
 
-        static ArrayList Testo(ArrayList input)
+        static void AddUnique(Contact contact, List<Contact> phoneBook)
         {
-            int suminpint = 0;
-            string textinp = "";
-            var result = new ArrayList();
+            bool isDuplicate = false;
 
-            foreach (var item in input)
+            foreach (Contact contactinbook in phoneBook)
             {
-                if (item is int)
+                if (contact.Name == contactinbook.Name &&
+                    contact.PhoneNumber == contactinbook.PhoneNumber &&
+                    contact.Email == contactinbook.Email)
                 {
-                    suminpint += (int)item;
-                }
-                else if (item is string)
-                {
-                    textinp += item.ToString();
+                    isDuplicate = true;
+                    break; // выходим из цикла, если нашли дубликат
                 }
             }
-            result.Add(suminpint);
-            result.Add(textinp);
-            return result;
 
+            if (!isDuplicate)
+            {
+                phoneBook.Add(contact);
 
+                //  сортируем список по имени
+                phoneBook.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.Ordinal));
+                // Выводим список только если добавили новый контакт
+                foreach (Contact c in phoneBook)
+                {
+                    Console.WriteLine(c.Name + " " + c.PhoneNumber + " " + c.Email);
+                }
+            }
         }
 
+    }
+    public class Contact // модель класса
+    {
+        public Contact(string name, long phoneNumber, String email) // метод-конструктор
+        {
+            Name = name;
+            PhoneNumber = phoneNumber;
+            Email = email;
+        }
+
+        public String Name { get; }
+        public long PhoneNumber { get; }
+        public String Email { get; }
     }
 }
