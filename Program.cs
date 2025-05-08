@@ -1,63 +1,58 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Xml.Linq;
 
-namespace ArrayListExample
+namespace StackTest
 {
     class Program
     {
-        static List<Contact> Book = new List<Contact>
-        {
-            new Contact("kile", 124, "@78"),
-            new Contact("mike", 233, "@45")
-        };
+        // объявим потокобезопасную очередь (полностью идентична обычной очереди, но
+        // позволяет безопасный доступ
+        // из разных потоков)
+        public static ConcurrentQueue<string> words = new ConcurrentQueue<string>();
 
-        static Contact cn = new Contact("james", 233, "@45");
-        static Contact co = new Contact("mike", 233, "@45");
         static void Main(string[] args)
         {
-            AddUnique(cn,Book);
-        }
+            Console.WriteLine("Введите слово и нажмите Enter, чтобы добавить его в очередь.");
+            Console.WriteLine();
 
-        static void AddUnique(Contact contact, List<Contact> phoneBook)
-        {
-            bool isDuplicate = false;
+            //  запустим обработку очереди в отдельном потоке
+            StartQueueProcessing();
 
-            foreach (Contact contactinbook in phoneBook)
+            while (true)
             {
-                if (contact.Name == contactinbook.Name &&
-                    contact.PhoneNumber == contactinbook.PhoneNumber &&
-                    contact.Email == contactinbook.Email)
+                var input = Console.ReadLine();
+                // если введена нужная нам команда - смотрим, кто крайний в очереди
+                if (input == "peek")
                 {
-                    isDuplicate = true;
-                    break; // выходим из цикла, если нашли дубликат
+                    if (words.TryPeek(out var elem))
+                        Console.WriteLine(elem +" в очереди");
                 }
-            }
-
-            if (!isDuplicate)
-            {
-                phoneBook.Add(contact);
-
-                //  сортируем список по имени
-                phoneBook.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.Ordinal));
-                // Выводим список только если добавили новый контакт
-                foreach (Contact c in phoneBook)
+                else
                 {
-                    Console.WriteLine(c.Name + " " + c.PhoneNumber + " " + c.Email);
+                    // если не введена - ставим элемент в очередь, как и обычно
+                    words.Enqueue(input);
                 }
             }
         }
 
-    }
-    public class Contact // модель класса
-    {
-        public Contact(string name, long phoneNumber, String email) // метод-конструктор
+        // метод, который обрабатывает и разбирает нашу очередь в отдельном потоке
+        // ( для выполнения задания изменять его не нужно )
+        static void StartQueueProcessing()
         {
-            Name = name;
-            PhoneNumber = phoneNumber;
-            Email = email;
-        }
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
 
-        public String Name { get; }
-        public long PhoneNumber { get; }
-        public String Email { get; }
+                while (true)
+                {
+                    Thread.Sleep(5000);
+                    if (words.TryDequeue(out var element))
+                        Console.WriteLine("======>  " + element + " прошел очередь");
+                }
+
+            }).Start();
+        }
     }
 }
