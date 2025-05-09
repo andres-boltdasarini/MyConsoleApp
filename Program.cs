@@ -1,4 +1,3 @@
-﻿
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,50 +11,34 @@ class Program
 
     static void Main(string[] args)
     {
-        string text = File.ReadAllText("C:\\Users\\user\\source\\repos\\MyConsoleApp\\input.txt");
+        string text = File.ReadAllText("C:\\Users\\user\\source\\repos\\MyConsoleApp\\input.txt").ToLower();
 
-        var timer = new Stopwatch();
+        string noPunctuationText = new string(text.Where(c => !char.IsPunctuation(c)).ToArray());
 
-        List<char> list = new List<char>();
-        LinkedList<char> linklist = new LinkedList<char>();
+        string[] words = noPunctuationText.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
-        timer.Restart();
-        foreach (var ch in text)
+        var wordsQt = new Dictionary<string,int>();
+        foreach (string word in words)
         {
-            list.Add(ch);
+            if (wordsQt.ContainsKey(word)) wordsQt[word] += 1;
+            else wordsQt[word] = 1;
         }
-        timer.Stop();
 
-        Console.WriteLine($"List.Add: {timer.ElapsedMilliseconds} ms");
+        KeyValuePair<string, int>[] wordArray = wordsQt.ToArray();
+        Array.Sort(wordArray, CompareByValueDescending);
 
-        timer.Restart();
-        foreach (var ch in text)
+        static int CompareByValueDescending(KeyValuePair<string, int> a, KeyValuePair<string, int> b)
         {
-            linklist.AddLast(ch);
+            return b.Value.CompareTo(a.Value); 
         }
-        timer.Stop();
 
-        Console.WriteLine($"LinkedList.AddLast: {timer.ElapsedMilliseconds} ms");
+        const int maxusewords = 10;
 
-
-        timer.Restart();
-        foreach (var ch in text)
+        for (int i = 0; i< maxusewords; i++)
         {
-            list.Insert(0, ch); // Вставка в начало
+            Console.WriteLine($"{wordArray[i].Key}: {wordArray[i].Value}");
         }
-        timer.Stop();
 
-        Console.WriteLine($"List.Insert(0): {timer.ElapsedMilliseconds} ms");
-
-
-        timer.Restart();
-        foreach (var ch in text)
-        {
-            linklist.AddFirst(ch);
-        }
-        timer.Stop();
-
-        Console.WriteLine($"LinkedList.AddFirst: {timer.ElapsedMilliseconds} ms");
     }
 }
 
