@@ -1,58 +1,63 @@
+﻿
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
-using System.Xml.Linq;
+using System.Timers;
 
-namespace StackTest
+
+
+class Program
 {
-    class Program
+
+    static void Main(string[] args)
     {
-        // объявим потокобезопасную очередь (полностью идентична обычной очереди, но
-        // позволяет безопасный доступ
-        // из разных потоков)
-        public static ConcurrentQueue<string> words = new ConcurrentQueue<string>();
+        string text = File.ReadAllText("C:\\Users\\user\\source\\repos\\MyConsoleApp\\input.txt");
 
-        static void Main(string[] args)
+        var timer = new Stopwatch();
+
+        List<char> list = new List<char>();
+        LinkedList<char> linklist = new LinkedList<char>();
+
+        timer.Restart();
+        foreach (var ch in text)
         {
-            Console.WriteLine("Введите слово и нажмите Enter, чтобы добавить его в очередь.");
-            Console.WriteLine();
-
-            //  запустим обработку очереди в отдельном потоке
-            StartQueueProcessing();
-
-            while (true)
-            {
-                var input = Console.ReadLine();
-                // если введена нужная нам команда - смотрим, кто крайний в очереди
-                if (input == "peek")
-                {
-                    if (words.TryPeek(out var elem))
-                        Console.WriteLine(elem +" в очереди");
-                }
-                else
-                {
-                    // если не введена - ставим элемент в очередь, как и обычно
-                    words.Enqueue(input);
-                }
-            }
+            list.Add(ch);
         }
+        timer.Stop();
 
-        // метод, который обрабатывает и разбирает нашу очередь в отдельном потоке
-        // ( для выполнения задания изменять его не нужно )
-        static void StartQueueProcessing()
+        Console.WriteLine($"List.Add: {timer.ElapsedMilliseconds} ms");
+
+        timer.Restart();
+        foreach (var ch in text)
         {
-            new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-
-                while (true)
-                {
-                    Thread.Sleep(5000);
-                    if (words.TryDequeue(out var element))
-                        Console.WriteLine("======>  " + element + " прошел очередь");
-                }
-
-            }).Start();
+            linklist.AddLast(ch);
         }
+        timer.Stop();
+
+        Console.WriteLine($"LinkedList.AddLast: {timer.ElapsedMilliseconds} ms");
+
+
+        timer.Restart();
+        foreach (var ch in text)
+        {
+            list.Insert(0, ch); // Вставка в начало
+        }
+        timer.Stop();
+
+        Console.WriteLine($"List.Insert(0): {timer.ElapsedMilliseconds} ms");
+
+
+        timer.Restart();
+        foreach (var ch in text)
+        {
+            linklist.AddFirst(ch);
+        }
+        timer.Stop();
+
+        Console.WriteLine($"LinkedList.AddFirst: {timer.ElapsedMilliseconds} ms");
     }
 }
+
+
+
