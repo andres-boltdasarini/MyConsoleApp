@@ -1,46 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Timers;
-
-
-
-class Program
+using System.Linq;
+ 
+namespace Practice
 {
+   class Program
+   {
+       static void Main(string[] args)
+       {
+           var people = new List<object>()
+           {
+               1,
+               "Сергей ",
+               "Андрей ",
+               300,
+           };
+ 
+          //  var names = from a in objects
+          //      where a is string // проверка на совместимость с типом
+          //      orderby a // сортировка по имени
+          //      select a; // выборка
+ 
+          //  foreach (var name in names)   Console.WriteLine(name);
 
-    static void Main(string[] args)
-    {
-        string text = File.ReadAllText("C:\\Users\\user\\source\\repos\\MyConsoleApp\\input.txt").ToLower();
+        var selectedPeople = people.Where( o => o is string).OrderBy(o => o);
 
-        string noPunctuationText = new string(text.Where(c => !char.IsPunctuation(c)).ToArray());
-
-        string[] words = noPunctuationText.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-
-        var wordsQt = new Dictionary<string,int>();
-        foreach (string word in words)
-        {
-            if (wordsQt.ContainsKey(word)) wordsQt[word] += 1;
-            else wordsQt[word] = 1;
-        }
-
-        KeyValuePair<string, int>[] wordArray = wordsQt.ToArray();
-        Array.Sort(wordArray, CompareByValueDescending);
-
-        static int CompareByValueDescending(KeyValuePair<string, int> a, KeyValuePair<string, int> b)
-        {
-            return b.Value.CompareTo(a.Value); 
-        }
-
-        const int maxusewords = 10;
-
-        for (int i = 0; i< maxusewords; i++)
-        {
-            Console.WriteLine($"{wordArray[i].Key}: {wordArray[i].Value}");
-        }
-
-    }
+           foreach (string s in selectedPeople) Console.WriteLine(s);
+       }
+   }
 }
-
-
-
