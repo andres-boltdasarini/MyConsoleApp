@@ -10,28 +10,31 @@ namespace LinqTest
        static void Main(string[] args)
        {
 // Подготовим данные
-List<Student> students = new List<Student>
+// Список студентов
+var  students = new List<Student>
 {
    new Student {Name="Андрей", Age=23, Languages = new List<string> {"английский", "немецкий" }},
    new Student {Name="Сергей", Age=27, Languages = new List<string> {"английский", "французский" }},
-   new Student {Name="Дмитрий", Age=29, Languages = new List<string> {"английский", "испанский" }},
-   new Student {Name="Василий", Age=24, Languages = new List<string> {"испанский", "немецкий" }}
-};
-          
-var fullNameStudents = from s in students
-where s.Age > 26
-
-// временная переменная для генерации полного имени
-let year = s.Age + 2000
-// проекция в новую сущность с использованием новой переменной
-select new Application()
-{
-   Name = s.Name,
-   YearOfBirth = year
+   new Student {Name="Дмитрий", Age=29, Languages = new List<string> {"английский", "испанский" }}
 };
  
-foreach (var stud in fullNameStudents)
-   Console.WriteLine(stud.Name + ", " + stud.YearOfBirth);
+// Список курсов
+var coarses = new List<Coarse>
+{
+   new Coarse {Name="Язык программирования C#", StartDate = new DateTime(2020, 12, 20)},
+   new Coarse {Name="Язык SQL и реляционные базы данных", StartDate = new DateTime(2020, 12, 15)},
+};
+          
+// добавим студентов в курсы
+var studentsWithCoarses = from stud in students
+where stud.Age< 29 && stud.Languages.Contains("английский")
+   from coarse in coarses
+   where coarse.Name.Contains("C#")
+   select new { Name = stud.Name, CoarseName = coarse.Name };
+ 
+// выведем результат
+foreach (var stud in studentsWithCoarses)
+   Console.WriteLine($"Студент {stud.Name} добавлен курс {stud.CoarseName}");
 
         }
    }
@@ -41,10 +44,10 @@ foreach (var stud in fullNameStudents)
         public int Age { get; set; }
         public List<string> Languages { get; set; }
     }
-
-      public class Application
+        class Coarse
     {
-      public string Name { get; set; }
-      public int YearOfBirth { get; set; }
+        public string Name { get; set; }
+        public DateTime StartDate { get; set; }
     }
+
 }
