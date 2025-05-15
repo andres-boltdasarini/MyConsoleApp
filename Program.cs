@@ -10,22 +10,20 @@ namespace LinqTest
        static void Main(string[] args)
        {
 // Подготовим данные
-var numsList = new List<int[]>()
-{
-   new[] {2, 3, 7, 1},
-   new[] {45, 17, 88, 0},
-   new[] {23, 32, 44, -6},
-};
+string [] words = { "Обезьяна", "Лягушка", "Кот", "Собака", "Черепаха"};
           
-// Составим запрос ()
-var mobileCompanies = numsList
-//.Where(companie => companie.value == "Mobile");
-
-               .SelectMany(c => c)
-                  .OrderBy(c => c);
+var wordsInfo =  words.Select(w =>
+   new
+   {  // Выборка в анонимный тип
+       Name = w,
+       Length = w.Length // Длину слова сохраняем сразу в свойство нового анонимного типа
+   })
+   .OrderBy( word => word.Length); //  сортируем коллекцию по длине
  
-           foreach (var company in mobileCompanies)
-               Console.WriteLine(company);
+ 
+// выводим
+foreach (var word in wordsInfo)
+   Console.WriteLine($"{word.Name} - {word.Length} букв");
 
 //foreach (var city in prodMob)
   // Console.WriteLine(city);
