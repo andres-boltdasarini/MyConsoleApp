@@ -1,76 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
- 
-namespace LinqTest
+﻿namespace PhoneBook
 {
-   class Program
-   {
-      
-       static void Main(string[] args)
-       {
-var contacts = new List<Contact>()
-{
-   new Contact() { Name = "Андрей", Phone = 7999945005 },
-   new Contact() { Name = "Сергей", Phone = 799990455 },
-   new Contact() { Name = "Иван", Phone = 79999675 },
-   new Contact() { Name = "Игорь", Phone = 8884994 },
-   new Contact() { Name = "Анна", Phone = 665565656 },
-   new Contact() { Name = "Василий", Phone = 3434 },
-   new Contact() { Name = "Анна2", Phone = 26655656562 },
-   new Contact() { Name = "Василий2", Phone = 234342 }
-};
- 
-while (true)
-{
-    Console.WriteLine("Введите номер страницы (1-4) или 'q' для выхода:");
-    var keyChar = Console.ReadKey().KeyChar;
-    Console.Clear();
-
-    if (keyChar == 'q') break;
-
-    if (!Char.IsDigit(keyChar))
+    class Program
     {
-        Console.WriteLine("Ошибка ввода, введите число от 1 до 4");
-        continue;
-    }
+        static void Main(string[] args)
+        {
+            //  создаём пустой список с типом данных Contact
+            var phoneBook = new List<Contact>();
 
-    IEnumerable<Contact> page = null;
-    int pageSize = 2;
-    
-    switch (keyChar)
-    {
-        case '1':
-            page = contacts.Take(pageSize);
-            break;
-        case '2':
-            page = contacts.Skip(pageSize).Take(pageSize);
-            break;
-        case '3':
-            page = contacts.Skip(pageSize * 2).Take(pageSize);
-            break;
-        case '4':
-            page = contacts.Skip(pageSize * 3).Take(pageSize);
-            break;
-        default:
-            Console.WriteLine($"Ошибка ввода, страницы {keyChar} не существует. Доступны страницы 1-4.");
-            continue;
-    }
+            // добавляем контакты
+            phoneBook.Add(new Contact("Игорь", "Николаев", 79990000001, "igor@example.com"));
+            phoneBook.Add(new Contact("Сергей", "Довлатов", 79990000010, "serge@example.com"));
+            phoneBook.Add(new Contact("Анатолий", "Карпов", 79990000011, "anatoly@example.com"));
+            phoneBook.Add(new Contact("Валерий", "Леонтьев", 79990000012, "valera@example.com"));
+            phoneBook.Add(new Contact("Сергей", "Брин", 799900000013, "serg@example.com"));
+            phoneBook.Add(new Contact("Иннокентий", "Смоктуновский", 799900000013, "innokentii@example.com"));
 
-    foreach (var contact in page)
-        Console.WriteLine($"{contact.Name} {contact.Phone:### ### ####}");
-}
 
- 
+            while (true)
+            {
+                Console.WriteLine("Введите номер страницы");
+                // Читаем введенный с консоли символ
+                var input = Console.ReadKey().KeyChar;
 
+                // проверяем, число ли это
+                var parsed = Int32.TryParse(input.ToString(), out int pageNumber);
+
+                // если не соответствует критериям - показываем ошибку
+                if (!parsed || pageNumber < 1 || pageNumber > 3)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Страницы не существует");
+                }
+                // если соответствует - запускаем вывод
+                else
+                {
+                    // пропускаем нужное количество элементов и берем 2 для показа на странице
+                    var pageContent = phoneBook.Skip((pageNumber - 1) * 2).Take(2)
+                           .OrderBy(s => s.Name)
+                           .ThenBy(s => s.LastName);
+                    Console.WriteLine();
+
+                    // выводим результат
+                    foreach (var entry in pageContent)
+                        Console.WriteLine(entry.Name + " " + entry.LastName + ": " + entry.PhoneNumber);
+
+                    Console.WriteLine();
+                }
+            }
         }
-   }
-       class Contact
-    {
-        public string Name { get; set; }
-        public long Phone { get; set; }
-       // public List<string> Languages { get; set; }
     }
+    public class Contact // модель класса
+    {
+        public Contact(string name, string lastName, long phoneNumber, String email) // метод-конструктор
+        {
+            Name = name;
+            LastName = lastName;
+            PhoneNumber = phoneNumber;
+            Email = email;
+        }
 
-
+        public String Name { get; }
+        public String LastName { get; }
+        public long PhoneNumber { get; }
+        public String Email { get; }
+    }
 }
