@@ -1,51 +1,68 @@
-﻿namespace PhoneBook
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.ConstrainedExecution;
+
+namespace LinqTest
 {
     class Program
     {
         static void Main(string[] args)
         {
-            //  создаём пустой список с типом данных Contact
-            var phoneBook = new List<Contact>();
+            var cars = new List<Car>()
+            {
+               new Car("Suzuki", "JP"),
+               new Car("Toyota", "JP"),
+               new Car("Opel", "DE"),
+               new Car("Kamaz", "RUS"),
+               new Car("Lada", "RUS"),
+               new Car("Honda", "JP"),
+            };
+            // Группировка по стране - производителю
+            var carsByCountry = cars.GroupBy(car => car.CountryCode)
+                                   .Select(grouping => new
+                                   {
+                                       Name = grouping.Key,
+                                       Count = grouping.Count(),
+                                       Cars = grouping.Select(p => p)
+                                   });
 
-            // добавляем контакты
-            phoneBook.Add(new Contact("Игорь", "Николаев", 79990000001, "igor@example.com"));
-            phoneBook.Add(new Contact("Сергей", "Довлатов", 79990000010, "serge@example.com"));
-            phoneBook.Add(new Contact("Анатолий", "Карпов", 79990000011, "anatoly@example.com"));
-            phoneBook.Add(new Contact("Валерий", "Леонтьев", 79990000012, "valera@example.com"));
-            phoneBook.Add(new Contact("Сергей", "Брин", 799900000013, "serg@example.com"));
-            phoneBook.Add(new Contact("Иннокентий", "Смоктуновский", 799900000013, "innokentii@example.com"));
 
-            //         var invalidContacts =
-            //(from contact in phoneBook // пробегаемся по контактам
-            // let phoneString = contact.PhoneNumber.ToString() // сохраняем в промежуточную переменную строку номера телефона
-            // where !phoneString.StartsWith('7') || phoneString.Length != 11 // выполняем выборку по условиям
-            // select contact) // добавляем объект в выборку
-            //.Count(); // считаем количество объектов в выборке
 
-                       var invalidContacts = phoneBook
-                .Where(contact =>
-                !contact.PhoneNumber.ToString().StartsWith('7') ||
-                contact.PhoneNumber.ToString().Length != 11)
-                .Count();
+            var carsByCountry2 = from car in cars
+                                 group car by car.CountryCode into grouping // выборка в локальную переменную для вложенного запроса
+                                 select new
+                                 {
+                                     Name = grouping.Key,
+                                     Count = grouping.Count(),
+                                     Cars = from p in grouping select p //  выполним подзапрос, чтобы заполнить список машин внутри нашего нового типа
+                                 };
 
-            Console.WriteLine(invalidContacts);
-                
-            
+            // Выведем результат
+            foreach (var group in carsByCountry)
+            {
+                // Название группы и количество элементов
+                Console.WriteLine($"{group.Name} : {group.Count} авто");
+
+                foreach (Car car in group.Cars)
+                    Console.WriteLine(car.Manufacturer);
+
+                Console.WriteLine();
+            }
+
         }
     }
-    public class Contact // модель класса
+    class Car
     {
-        public Contact(string name, string lastName, long phoneNumber, String email) // метод-конструктор
+        public string Manufacturer { get; set; }
+        public string CountryCode { get; set; }
+
+        public Car(string manufacturer, string countryCode)
         {
-            Name = name;
-            LastName = lastName;
-            PhoneNumber = phoneNumber;
-            Email = email;
+            Manufacturer = manufacturer;
+            CountryCode = countryCode;
         }
 
-        public String Name { get; }
-        public String LastName { get; }
-        public long PhoneNumber { get; }
-        public String Email { get; }
     }
+
 }
