@@ -15,38 +15,22 @@
             phoneBook.Add(new Contact("Сергей", "Брин", 799900000013, "serg@example.com"));
             phoneBook.Add(new Contact("Иннокентий", "Смоктуновский", 799900000013, "innokentii@example.com"));
 
+            //         var invalidContacts =
+            //(from contact in phoneBook // пробегаемся по контактам
+            // let phoneString = contact.PhoneNumber.ToString() // сохраняем в промежуточную переменную строку номера телефона
+            // where !phoneString.StartsWith('7') || phoneString.Length != 11 // выполняем выборку по условиям
+            // select contact) // добавляем объект в выборку
+            //.Count(); // считаем количество объектов в выборке
 
-            while (true)
-            {
-                Console.WriteLine("Введите номер страницы");
-                // Читаем введенный с консоли символ
-                var input = Console.ReadKey().KeyChar;
+                       var invalidContacts = phoneBook
+                .Where(contact =>
+                !contact.PhoneNumber.ToString().StartsWith('7') ||
+                contact.PhoneNumber.ToString().Length != 11)
+                .Count();
 
-                // проверяем, число ли это
-                var parsed = Int32.TryParse(input.ToString(), out int pageNumber);
-
-                // если не соответствует критериям - показываем ошибку
-                if (!parsed || pageNumber < 1 || pageNumber > 3)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine("Страницы не существует");
-                }
-                // если соответствует - запускаем вывод
-                else
-                {
-                    // пропускаем нужное количество элементов и берем 2 для показа на странице
-                    var pageContent = phoneBook.Skip((pageNumber - 1) * 2).Take(2)
-                           .OrderBy(s => s.Name)
-                           .ThenBy(s => s.LastName);
-                    Console.WriteLine();
-
-                    // выводим результат
-                    foreach (var entry in pageContent)
-                        Console.WriteLine(entry.Name + " " + entry.LastName + ": " + entry.PhoneNumber);
-
-                    Console.WriteLine();
-                }
-            }
+            Console.WriteLine(invalidContacts);
+                
+            
         }
     }
     public class Contact // модель класса
