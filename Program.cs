@@ -9,60 +9,60 @@ namespace LinqTest
     {
         static void Main(string[] args)
         {
-            var cars = new List<Car>()
-            {
-               new Car("Suzuki", "JP"),
-               new Car("Toyota", "JP"),
-               new Car("Opel", "DE"),
-               new Car("Kamaz", "RUS"),
-               new Car("Lada", "RUS"),
-               new Car("Honda", "JP"),
-            };
-            // Группировка по стране - производителю
-            var carsByCountry = cars.GroupBy(car => car.CountryCode)
-                                   .Select(grouping => new
-                                   {
-                                       Name = grouping.Key,
-                                       Count = grouping.Count(),
-                                       Cars = grouping.Select(p => p)
-                                   });
+            // Список моделей
+var departments = new List<Department>()
+{
+   new Department() {Id = 1, Name = "Программирование"},
+   new Department() {Id = 2, Name = "Продажи"},
+   new Department() {Id = 3, Name = "Бухгалтерия"}
+};
+ 
+// Список автопроизводителей
+var employees = new List<Employee>()
+{
+   new Employee() { DepartmentId = 1, Name = "Инна", Id = 1},
+   new Employee() { DepartmentId = 1, Name = "Андрей", Id = 2},
+   new Employee() { DepartmentId = 2, Name = "Виктор ", Id = 3},
+   new Employee() { DepartmentId = 3, Name = "Альберт ", Id = 4},
+};
 
+var result = from employee in employees // выберем машины
+               join d in departments on employee.DepartmentId equals d.Id // соединим по общему ключу (имя производителя) с производителями
+               select new //   спроецируем выборку в новую анонимную сущность
+               {
+                   Contact = employee.Name,
+                   Department = d.Name,
+               };
 
-
-            var carsByCountry2 = from car in cars
-                                 group car by car.CountryCode into grouping // выборка в локальную переменную для вложенного запроса
-                                 select new
-                                 {
-                                     Name = grouping.Key,
-                                     Count = grouping.Count(),
-                                     Cars = from p in grouping select p //  выполним подзапрос, чтобы заполнить список машин внутри нашего нового типа
-                                 };
-
-            // Выведем результат
-            foreach (var group in carsByCountry)
-            {
-                // Название группы и количество элементов
-                Console.WriteLine($"{group.Name} : {group.Count} авто");
-
-                foreach (Car car in group.Cars)
-                    Console.WriteLine(car.Manufacturer);
-
-                Console.WriteLine();
-            }
+var result2 = employees.Join(departments, // передаем в качестве параметра вторую коллекцию
+   employee => employee.DepartmentId, // указываем общее свойство для первой коллекции
+   d => d.Id, // указываем общее свойство для второй коллекции
+   (employee, d) =>
+       new // проекция в новый тип
+       {
+                   Contact = employee.Name,
+                   Department = d.Name,
+       });
+ 
+// выведем результаты
+foreach (var item in result2)
+   Console.WriteLine($"{item.Contact} - {item.Department}");
 
         }
     }
-    class Car
-    {
-        public string Manufacturer { get; set; }
-        public string CountryCode { get; set; }
-
-        public Car(string manufacturer, string countryCode)
-        {
-            Manufacturer = manufacturer;
-            CountryCode = countryCode;
-        }
-
-    }
+// Модель автомобиля
+public class Department
+{
+   public int Id { get; set; }
+   public string Name { get; set; }
+}
+ 
+// Завод - изготовитель
+public class Employee
+{
+   public int DepartmentId { get; set; }
+   public string Name { get; set; }
+   public int Id { get; set; }
+}
 
 }
