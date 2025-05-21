@@ -33,7 +33,10 @@ namespace LinqTest
                 {
                     DepartmentName = department.Name,
                     Employees = emp.Select(e => e.Name)
-                });
+                }).ToArray();
+
+                departments.Add(new Department {Id = 5, Name = "Дизайн"});
+                //students.Add( new Student {Name="Анна", Age=21 } );
 
             foreach (var group in groupedEmployees)
             {
@@ -59,3 +62,5 @@ namespace LinqTest
         public int Id { get; set; }
     }
 }
+
+//Напишите свой пример, который позволит узнать, приводит ли метод ToArray() к мгновенному выполнению LINQ-запроса?
