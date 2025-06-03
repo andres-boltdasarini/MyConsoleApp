@@ -1,118 +1,74 @@
-﻿namespace AbstractFactoryRealExample
+﻿using System;
+ 
+namespace FactoryMethodRealExample
 {
-   class Program
+
+    class Program
    {
        static void Main(string[] args)
        {
-           // Создание дракона через фабрику
-           var dragon = new Monster(new DragonFactory());
-           dragon.Move();
-           dragon.Hit();
+           string messageText = "Ваш номер заказа - 83456";
  
-           Console.WriteLine();
-           // Создание орка через фабрику
-           var orc = new Monster(new OrcFactory());
-           orc.Move();
-           orc.Hit();
- 
-           Console.WriteLine();
-           Console.WriteLine("Всем конец...");
+           // Отправляем заказ по SMS
+           MessageSender sender = new SmsMessageSender("+79856455320");
+           Message smsMessage = sender.Send(messageText);
+       
+           // Отправляем заказ по e-mail
+           sender = new EmailMessageSender("orders@myshop.com");
+           Message message = sender.Send(messageText);
        }
    }
 
-   interface IMovement
-   {
-       void Start();
-   }
+    abstract class Message
+   {}
 
-      class RunMovement : IMovement
+   class SmsMessage : Message
    {
-       public void Start()
+       public SmsMessage()
        {
-           Console.WriteLine("Бежим");
+           Console.WriteLine("SMS отправдено");
        }
    }
 
-      class FlyMovement : IMovement
+      class EmailMessage : Message
    {
-       public void Start()
+       public EmailMessage()
        {
-           Console.WriteLine("Летим");
+           Console.WriteLine("e-mail отправлен");
        }
    }
 
-      interface IWeapon
+      abstract class MessageSender
    {
-       void Attack();
-   }
-
-      class Axe : IWeapon
-   {
-       public void Attack()
+       public string From { get; set; }
+       public MessageSender (string @from)
        {
-           Console.WriteLine("Бьем топором");
+           From = @from;
        }
-   }
-
-      class FireBreath : IWeapon
-   {
-       public void Attack()
-       {
-           Console.WriteLine("Дышим огнем");
-       }
-   }
-
-      interface IMonsterFactory
-   {
-        IMovement CreateMovement();
-        IWeapon CreateWeapon();
-   }
-
-      class DragonFactory : IMonsterFactory
-   {
-       public IMovement CreateMovement()
-       {
-           return new FlyMovement();
-       }
-       public IWeapon CreateWeapon()
-       {
-           return new FireBreath();
-       }
-   }
-
-      class OrcFactory : IMonsterFactory
-   {
-       public IMovement CreateMovement()
-       {
-           return new RunMovement();
-       }
-       public IWeapon CreateWeapon()
-       {
-           return new Axe();
-       }
-   }
-
-   class Monster
-   {
-       private IWeapon _weapon;
-       private IMovement _movement;
       
-       /// <summary>
-       ///  Метод - конструктор, где создаются объекты при помощи фабрики
-       /// </summary>
-       public Monster(IMonsterFactory factory)
+       // Фабричный метод
+       abstract public Message Send(string text);
+   }
+
+      class EmailMessageSender : MessageSender
+   {
+       public EmailMessageSender(string @from) : base(@from)
+       { }
+       public override Message Send(string text)
        {
-           _weapon = factory.CreateWeapon();
-           _movement = factory.CreateMovement();
-       }
-       public void Move()
-       {
-           _movement.Start();
-       }
-       public void Hit()
-       {
-           _weapon.Attack();
+           return new EmailMessage();
        }
    }
-}
 
+      class SmsMessageSender : MessageSender
+   {
+       public SmsMessageSender(string @from) : base(@from)
+       { }
+       public override Message Send(string text)
+       {
+           return new SmsMessage();
+       }
+   }
+
+
+}
