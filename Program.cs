@@ -1,74 +1,78 @@
 ﻿using System;
- 
-namespace FactoryMethodRealExample
+
+namespace AdapterRealExample.Devices
 {
-
     class Program
-   {
-       static void Main(string[] args)
-       {
-           string messageText = "Ваш номер заказа - 83456";
- 
-           // Отправляем заказ по SMS
-           MessageSender sender = new SmsMessageSender("+79856455320");
-           Message smsMessage = sender.Send(messageText);
-       
-           // Отправляем заказ по e-mail
-           sender = new EmailMessageSender("orders@myshop.com");
-           Message message = sender.Send(messageText);
-       }
-   }
+    {
+        static void Main(string[] args)
+        {
+            // Нам надо отрисовать изображение на бумаге и холсте
+            // Запускаем класс для отрисовки
+            var imageDrawer = new ImageDrawer();
+          
+            // Создаем класс для работы с бумажным принтером
+            PaperPrinter paperPrinter = new PaperPrinter();
+            // Запускаем отрисовку на бумаге
+            imageDrawer.DrawWith(paperPrinter);
+          
+            // Теперь нужна печать на холсте
+            CanvasPainter canvasPainter = new CanvasPainter();
+          
+            // используем адаптер
+            IPrinter imagePrinter = new CanvasPainterToPrinterAdapter(canvasPainter);
+            // Запускаем печать на холсте
+            imageDrawer.DrawWith(imagePrinter);
+            Console.Read();
+        }
+    }
 
-    abstract class Message
-   {}
+    interface IPrinter
+    {
+        void Print();
+    }
 
-   class SmsMessage : Message
-   {
-       public SmsMessage()
-       {
-           Console.WriteLine("SMS отправдено");
-       }
-   }
+    interface IPainter
+    {
+        void Paint();
+    }
 
-      class EmailMessage : Message
-   {
-       public EmailMessage()
-       {
-           Console.WriteLine("e-mail отправлен");
-       }
-   }
+    class PaperPrinter : IPrinter
+    {
+        public void Print()
+        {
+            Console.WriteLine("Печатаем на бумаге");
+        }
+    }
 
-      abstract class MessageSender
-   {
-       public string From { get; set; }
-       public MessageSender (string @from)
-       {
-           From = @from;
-       }
-      
-       // Фабричный метод
-       abstract public Message Send(string text);
-   }
+    class CanvasPainter : IPainter
+    {
+        public void Paint()
+        {
+            Console.WriteLine("Рисуем на холсте");
+        }
+    }
 
-      class EmailMessageSender : MessageSender
-   {
-       public EmailMessageSender(string @from) : base(@from)
-       { }
-       public override Message Send(string text)
-       {
-           return new EmailMessage();
-       }
-   }
+    class ImageDrawer
+    {
+        // Метод, запускающий печать с помощью внешнего устройства
+        public void DrawWith(IPrinter printer)
+        {
+            printer.Print();
+        }
+    }
 
-      class SmsMessageSender : MessageSender
-   {
-       public SmsMessageSender(string @from) : base(@from)
-       { }
-       public override Message Send(string text)
-       {
-           return new SmsMessage();
-       }
-   }
+    class CanvasPainterToPrinterAdapter : IPrinter
+    {
+        private readonly IPainter _painter;
 
+        public CanvasPainterToPrinterAdapter(IPainter painter)
+        {
+            _painter = painter;
+        }
 
+        public void Print()
+        {
+            _painter.Paint();
+        }
+    }
 }
