@@ -1,78 +1,96 @@
-﻿using System;
-
-namespace AdapterRealExample.Devices
+﻿namespace CompositeExample.Components
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            // Нам надо отрисовать изображение на бумаге и холсте
-            // Запускаем класс для отрисовки
-            var imageDrawer = new ImageDrawer();
+
+   abstract class Component
+   {
+       public readonly string Name;
+ 
+       protected Component(string name)
+       {
+           this.Name = name;
+       }
+      
+       #region Методы для добавления / удаления подкомпонентов
+      
+       public abstract void Display();
+       public abstract void Add(Component c);
+       public abstract void Remove(Component c);
+      
+       #endregion
+   }
+
+      class File : Component
+   {
+       public File(string name)
+           : base(name)
+       {}
+       public override void Display()
+       {
+           Console.WriteLine(Name);
+       }
+       // Метод для добавления подкомпонентов не поддерживается
+       public override void Add(Component component)
+       {
+           throw new NotImplementedException();
+       }
+       // Метод для удаления подкомпонентов не поддерживается
+       public override void Remove(Component component)
+       {
+           throw new NotImplementedException();
+       }
+   }
+
+      class Folder : Component
+   {
+       List<Component> subFolders = new List<Component>();
+       public Folder(string name)
+           : base(name)
+       {}
+       // Метод для добавления новых подкомпонентов
+       public override void Add(Component component)
+       {
+           subFolders.Add(component);
+           Console.WriteLine($"В {this.Name} добавлено: {component.Name} ");
+       }
+       // Метод для удаления
+       public override void Remove(Component component)
+       {
+           subFolders.Remove(component);
+           Console.WriteLine($"Из {this.Name} удалено: {component.Name} ");
+       }
+       // Метод для отображения нижестоящих компонентов
+       public override void Display()
+       {
+           Console.WriteLine();
+           Console.WriteLine($"{Name} содержит:");
+           foreach (Component component in subFolders)
+               component.Display();
+       }
+   }
+
+   class Client
+   {
+       public  static void Main()
+       {
+           // Создание корневой папки
+           Component rootFolder = new Folder("Root");
           
-            // Создаем класс для работы с бумажным принтером
-            PaperPrinter paperPrinter = new PaperPrinter();
-            // Запускаем отрисовку на бумаге
-            imageDrawer.DrawWith(paperPrinter);
+           // Создание файла - компонента низшего уровня
+           Component myFile = new File("MyFile.txt");
           
-            // Теперь нужна печать на холсте
-            CanvasPainter canvasPainter = new CanvasPainter();
+           // Создание папки с документами
+           Folder documentsFolder = new Folder("MyDocuments");
           
-            // используем адаптер
-            IPrinter imagePrinter = new CanvasPainterToPrinterAdapter(canvasPainter);
-            // Запускаем печать на холсте
-            imageDrawer.DrawWith(imagePrinter);
-            Console.Read();
-        }
-    }
+           // Добавляем файл в корневую папки
+           rootFolder.Add(myFile);
+          
+           // Добавляем подпапку для документов в корневую папку
+           rootFolder.Add(documentsFolder);
+          
+           // показываем контент корневой папки
+           rootFolder.Display();
+       }
+   }
 
-    interface IPrinter
-    {
-        void Print();
-    }
 
-    interface IPainter
-    {
-        void Paint();
-    }
-
-    class PaperPrinter : IPrinter
-    {
-        public void Print()
-        {
-            Console.WriteLine("Печатаем на бумаге");
-        }
-    }
-
-    class CanvasPainter : IPainter
-    {
-        public void Paint()
-        {
-            Console.WriteLine("Рисуем на холсте");
-        }
-    }
-
-    class ImageDrawer
-    {
-        // Метод, запускающий печать с помощью внешнего устройства
-        public void DrawWith(IPrinter printer)
-        {
-            printer.Print();
-        }
-    }
-
-    class CanvasPainterToPrinterAdapter : IPrinter
-    {
-        private readonly IPainter _painter;
-
-        public CanvasPainterToPrinterAdapter(IPainter painter)
-        {
-            _painter = painter;
-        }
-
-        public void Print()
-        {
-            _painter.Paint();
-        }
-    }
 }
