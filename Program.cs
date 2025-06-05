@@ -1,96 +1,93 @@
-﻿namespace CompositeExample.Components
-{
-
-   abstract class Component
-   {
-       public readonly string Name;
+﻿using System;
  
-       protected Component(string name)
+namespace FacadeRealExample.Components
+{
+   class Program
+   {
+       static void Main(string[] args)
        {
-           this.Name = name;
+           // при запуске IDE инициализирует объекты для работы с компонентами
+           Editor textEditor = new Editor();
+           Compiller compiller = new Compiller();
+           Runtime runtime = new Runtime();
+       
+           // Наша модель IDE запущена и готова к использованию
+           IdeFacade ide = new IdeFacade(textEditor, compiller, runtime);
+          
+           // Начинаем писать код и нажимаем кнопку Start
+           ide.Start("Console.WriteLine(\"Hello World!\");"); // запускается выполнение нашей программы
+           ide.Stop();
+       }
+   }
+
+   class Editor
+   {
+       // Функция написания кода
+       public void Write(string sourceCode)
+       {
+           Console.WriteLine($"Пишем код:  {sourceCode}");
        }
       
-       #region Методы для добавления / удаления подкомпонентов
+       // Функция сохранения кода
+       public void Save()
+       {
+           Console.WriteLine("Сохраняем код");
+       }
+   }
+
+   class Compiller
+   {
+       public void Compile()
+       {
+           Console.WriteLine("Компиляция приложения");
+       }
+   }
+
+   class Runtime
+   {
+       public void Execute()
+       {
+           Console.WriteLine("Выполнение приложения");
+       }
+       public void Finish()
+       {
+           Console.WriteLine("Завершение работы приложения");
+       }
+   }
+
+      class IdeFacade
+   {
+       readonly Editor _editor;
+       readonly Compiller _compiler;
+       readonly Runtime _runtime;
+       public IdeFacade(Editor editor, Compiller compiler, Runtime runtime)
+       {
+           _editor = editor;
+           _compiler = compiler;
+           _runtime = runtime;
+       }
       
-       public abstract void Display();
-       public abstract void Add(Component c);
-       public abstract void Remove(Component c);
+       // Вы ввели код, IDE выполняет с ним примерно следующие действия перед запуском:
+       public void Start(string sourceCode)
+       {
+           // Пишет в текстовый файл
+           _editor.Write(sourceCode);
+          
+           // Сохраняет текстовый файл
+           _editor.Save();
+          
+           // Вызывает компилятор
+           _compiler.Compile();
+          
+           // Запускает выполнение скомпилированного приложения в среде CLR
+           _runtime.Execute();
+       }
       
-       #endregion
-   }
-
-      class File : Component
-   {
-       public File(string name)
-           : base(name)
-       {}
-       public override void Display()
+       // в конце IDE может остановить выполнение, вызвав команду в среде выполнения
+       public void Stop()
        {
-           Console.WriteLine(Name);
-       }
-       // Метод для добавления подкомпонентов не поддерживается
-       public override void Add(Component component)
-       {
-           throw new NotImplementedException();
-       }
-       // Метод для удаления подкомпонентов не поддерживается
-       public override void Remove(Component component)
-       {
-           throw new NotImplementedException();
+           _runtime.Finish();
        }
    }
-
-      class Folder : Component
-   {
-       List<Component> subFolders = new List<Component>();
-       public Folder(string name)
-           : base(name)
-       {}
-       // Метод для добавления новых подкомпонентов
-       public override void Add(Component component)
-       {
-           subFolders.Add(component);
-           Console.WriteLine($"В {this.Name} добавлено: {component.Name} ");
-       }
-       // Метод для удаления
-       public override void Remove(Component component)
-       {
-           subFolders.Remove(component);
-           Console.WriteLine($"Из {this.Name} удалено: {component.Name} ");
-       }
-       // Метод для отображения нижестоящих компонентов
-       public override void Display()
-       {
-           Console.WriteLine();
-           Console.WriteLine($"{Name} содержит:");
-           foreach (Component component in subFolders)
-               component.Display();
-       }
-   }
-
-   class Client
-   {
-       public  static void Main()
-       {
-           // Создание корневой папки
-           Component rootFolder = new Folder("Root");
-          
-           // Создание файла - компонента низшего уровня
-           Component myFile = new File("MyFile.txt");
-          
-           // Создание папки с документами
-           Folder documentsFolder = new Folder("MyDocuments");
-          
-           // Добавляем файл в корневую папки
-           rootFolder.Add(myFile);
-          
-           // Добавляем подпапку для документов в корневую папку
-           rootFolder.Add(documentsFolder);
-          
-           // показываем контент корневой папки
-           rootFolder.Display();
-       }
-   }
-
-
+   
 }
