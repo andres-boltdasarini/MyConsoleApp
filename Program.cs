@@ -1,49 +1,61 @@
-﻿interface IExporter
+﻿   class BoardComputer
 {
-   void Export(string text);
-}
-
-class PdfExporter : IExporter
-{
-   public void Export(string text)
-   {
-       Console.WriteLine($"{text}  => Экспортировано в PDF");
+   public void PerformLanding(ILandingProfile profile)
+   { 
+      profile.Execute();
    }
+           
 }
-
-class Document
-{
-   public string Text { get; set; }
-  
-   public void ScrollUp()
+   
+   public interface ILandingProfile
    {
-       Console.WriteLine($"Прокрутка вверх");   }
- 
-   public void ScrollDown()
-   {
-       Console.WriteLine($"Прокрутка вниз");   }
- 
-   public void ZoomIn()
-   {
-       Console.WriteLine("Увеличиваем масштаб");
+       void Execute();
    }
- 
-   /// <summary>
-   ///  Экспорт в любые форматы
-   /// </summary>
-   public void Export(IExporter exporter)
-   {
-       exporter.Export(Text);
-   }
-}
 
-   class Program
+      public class GroundLandingProfile : ILandingProfile
    {
-       static void Main()
+       public void Execute()
        {
-           IExporter exporter = new PdfExporter();
-           Document doc = new Document();
-           doc.Text = "Hello World";
-           doc.Export(exporter);
+           Console.WriteLine(">> Загружен профиль: ПОСАДКА НА ЗЕМЛЮ <<");
+          
+           Console.WriteLine("Сбрасываем скорость");
+           Console.WriteLine("Опускаем руль высоты");
+           Console.WriteLine("Сбрасываем скорость");
+           Console.WriteLine("Выпускаем шасси");
+           Console.WriteLine("Поднимаем руль высоты");
+           Console.WriteLine("Сбрасываем скорость");
+           Console.WriteLine("--ПОСАДКА--");
+           Console.WriteLine("Выпускаем тормозной парашют");
+       }
+   }
+
+      public class WaterLandingProfile : ILandingProfile
+   {
+       public void Execute()
+       {
+           Console.WriteLine(">> Загружен профиль: ПОСАДКА НА ВОДУ <<");
+          
+           Console.WriteLine("Сбрасываем скорость");
+           Console.WriteLine("Опускаем руль высоты");
+           Console.WriteLine("Сбрасываем скорость");
+           Console.WriteLine("Поднимаем руль высоты");
+           Console.WriteLine("Сбрасываем скорость");
+           Console.WriteLine("--ПОСАДКА--");
+       }
+   }
+
+      class Program
+   {
+       static void Main(string[] args)
+       {
+           var boardComputer = new BoardComputer();
+          
+           // посадка на землю
+           boardComputer.PerformLanding(new GroundLandingProfile());
+ 
+           Console.WriteLine();
+          
+           // посадка на воду
+           boardComputer.PerformLanding(new WaterLandingProfile());
        }
    }
