@@ -1,82 +1,121 @@
-﻿   interface IElevatorState
+﻿   interface IObserver
    {
-       void Up(Elevator elevator);
-       void Down(Elevator elevator);
+       void Update(Object o);
    }
 
-   class LowerElevatorState : IElevatorState
-{
-   public void Up(Elevator elevator)
+      class StockData
    {
-       Console.WriteLine("Поднимаемся на первый этаж");
-       elevator.ElevatorState = new GroundElevatorState();
+       public int USD { get; set; }
+       public int Euro { get; set; }
    }
+
+      interface IObservable
+   {
+       // добавить наблюдателя
+       void RegisterObserver(IObserver o);
+      
+       // удалить наблюдателя
+       void RemoveObserver(IObserver o);
+      
+       // уведомление наблюдателей
+       void NotifyObservers();
+   }
+
+      class Bank : IObserver
+   {
+       IObservable stock;
+       public Bank(IObservable obs)
+       {
+           stock = obs;
+           stock.RegisterObserver(this);
+       }
+      
+       public void Update(object o)
+       {
+           StockData sData = (StockData)o;
+   
+           if (sData.Euro > 85)
+               Console.WriteLine($"Банк продает евро по курсу {sData.Euro}");
+           else
+               Console.WriteLine($"Банк покупает евро по курсу {sData.Euro}");
+       }
+   }
+
+      class Broker : IObserver
+   {
+       IObservable stock;
  
-   public void Down(Elevator elevator)
-   {
-       Console.WriteLine("Опускаемся ещё ниже");
-   }
-}
-
-class GroundElevatorState : IElevatorState
-{
-   public void Up(Elevator elevator)
-   {
-       Console.WriteLine("Поднимаемся на верхний этаж");
-       elevator.ElevatorState = new UpperElevatorState();
-   }
+       public Broker(IObservable obs)
+       {
+           stock = obs;
+           stock.RegisterObserver(this);
+       }
  
-   public void Down(Elevator elevator)
-   {
-       Console.WriteLine("Опускаемся на подвальный этаж");
-       elevator.ElevatorState = new LowerElevatorState();
-   }
-}
-
-class UpperElevatorState : IElevatorState
-{
-   public void Up(Elevator elevator)
-   {
-       Console.WriteLine("Перемещаемся ещё выше");
-   }
+       public void Update(object o)
+       {
+           StockData sData = (StockData) o;
  
-   public void Down(Elevator elevator)
-   {
-       Console.WriteLine("Опускаемся на первый этаж");
-       elevator.ElevatorState = new GroundElevatorState();
+           if (sData.USD > 85)
+               Console.WriteLine($"Брокер продает доллары  по курсу {sData.USD}");           else
+               Console.WriteLine($"Брокер покупает доллары  по курсу {sData.USD}");       }
+ 
+       public void StopTrade()
+       {
+           stock.RemoveObserver(this);
+           stock = null;
+       }
    }
-}
 
-class Elevator {
-  /// Хранилище состояния
-  public IElevatorState ElevatorState {
-    get;
-    set;
-  }
-  public Elevator(IElevatorState elevatorState) {
-    ElevatorState = elevatorState;
-  }
-  // Подъем
-  public void Up() {
-    ElevatorState.Up(this);
-  }
+   class Stock : IObservable
+   {
+       /// <summary>
+       /// Информация о торгах
+       /// </summary>
+       StockData _sData;
+       List<IObserver> observers;
+       public Stock()
+       {
+           observers = new List<IObserver>();
+           _sData = new StockData();
+       }
+       public void RegisterObserver(IObserver o)
+       {
+           observers.Add(o);
+       }
+       public void RemoveObserver(IObserver o)
+       {
+           observers.Remove(o);
+       }
+       public void NotifyObservers()
+       {
+           foreach(IObserver o in observers)
+           {
+               o.Update(_sData);
+           }
+       }
+       public void Market()
+       {
+           Random rnd = new Random();
+           _sData.USD = rnd.Next(70, 90);
+           _sData.Euro = rnd.Next(80, 100);
+           NotifyObservers();
+       }
+   }
 
-  // Спуск
-  public void Down() {
-    ElevatorState.Down(this);
-  }
-}
-
-
-   class Program
+      class Program
    {
        static void Main(string[] args)
        {
-           // инициализируем лифт (находится на земле)
-           Elevator elevator = new Elevator(new GroundElevatorState());
+           Stock stock = new Stock();
           
-           elevator.Up(); // подъем наверх
-           elevator.Down(); // спуск на землю
-           elevator.Down(); // спуск в подвал
+           var bank = new Bank(stock);
+           var broker = new Broker(stock);
+          
+           // имитация торгов
+           stock.Market();
+           // брокер прекращает наблюдать за торгами
+           broker.StopTrade();
+           // имитация торгов
+           stock.Market();
        }
    }
