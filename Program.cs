@@ -1,61 +1,61 @@
 ﻿using System;
 
-// ===== НАРУШЕНИЕ LSP =====
-public class Rectangle
+// Базовый интерфейс
+public interface ICar
 {
-    public virtual int Width { get; set; }
-    public virtual int Height { get; set; }
-    public int Area => Width * Height;
+    void Drive();
 }
 
-public class Square : Rectangle
+// Опциональные интерфейсы
+public interface IOffRoadPack
 {
-    public override int Width
-    {
-        set { base.Width = base.Height = value; } // Нарушение LSP!
-    }
-
-    public override int Height
-    {
-        set { base.Width = base.Height = value; } // Нарушение LSP!
-    }
+    void DriveDown();
+    void LockDifferential();
+    void DescentAssist();
 }
 
-// ===== СОБЛЮДЕНИЕ LSP =====
-public interface IShape
+public interface IPremiumPack
 {
-    int GetArea();
+    void CruiseControl();
 }
 
-public class GoodRectangle : IShape
+public interface ISportPack
 {
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public int GetArea() => Width * Height;
+    void FourWheelDrive();
 }
 
-public class GoodSquare : IShape
+// Классы машин
+public class Sedane : ICar, IPremiumPack
 {
-    public int Side { get; set; }
-    public int GetArea() => Side * Side;
+    public void Drive() => Console.WriteLine("Седан едет");
+    public void CruiseControl() => Console.WriteLine("Круиз-контроль включён");
+}
+
+public class Suv : ICar, IOffRoadPack, ISportPack, IPremiumPack
+{
+    public void Drive() => Console.WriteLine("Внедорожник едет");
+    public void CruiseControl() => Console.WriteLine("Круиз-контроль включён");
+    public void FourWheelDrive() => Console.WriteLine("Полный привод активирован");
+    public void DriveDown() => Console.WriteLine("Спуск с горы");
+    public void LockDifferential() => Console.WriteLine("Дифференциал заблокирован");
+    public void DescentAssist() => Console.WriteLine("Помощь при спуске");
+}
+
+public class Driver
+{
+    public void Drive(ICar car) => car.Drive();
 }
 
 class Program
 {
     static void Main()
     {
-        // === Демонстрация нарушения LSP ===
-        Console.WriteLine("Нарушение LSP:");
-        Rectangle rect = new Square();
-        rect.Width = 5;
-        rect.Height = 4;
-        Console.WriteLine($"Ожидается площадь = 20, но получается: {rect.Area}"); // 16 (!)
+        var driver = new Driver();
 
-        // === Демонстрация соблюдения LSP ===
-        Console.WriteLine("\nСоблюдение LSP:");
-        IShape goodRect = new GoodRectangle { Width = 5, Height = 4 };
-        IShape goodSquare = new GoodSquare { Side = 5 };
-        Console.WriteLine($"Площадь прямоугольника: {goodRect.GetArea()}"); // 20
-        Console.WriteLine($"Площадь квадрата: {goodSquare.GetArea()}");     // 25
+        Console.WriteLine("Седан:");
+        driver.Drive(new Sedane());
+
+        Console.WriteLine("\nВнедорожник:");
+        driver.Drive(new Suv());
     }
 }
