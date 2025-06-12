@@ -1,61 +1,61 @@
-﻿   class BoardComputer
+﻿using System;
+
+// ===== НАРУШЕНИЕ LSP =====
+public class Rectangle
 {
-   public void PerformLanding(ILandingProfile profile)
-   { 
-      profile.Execute();
-   }
-           
+    public virtual int Width { get; set; }
+    public virtual int Height { get; set; }
+    public int Area => Width * Height;
 }
-   
-   public interface ILandingProfile
-   {
-       void Execute();
-   }
 
-      public class GroundLandingProfile : ILandingProfile
-   {
-       public void Execute()
-       {
-           Console.WriteLine(">> Загружен профиль: ПОСАДКА НА ЗЕМЛЮ <<");
-          
-           Console.WriteLine("Сбрасываем скорость");
-           Console.WriteLine("Опускаем руль высоты");
-           Console.WriteLine("Сбрасываем скорость");
-           Console.WriteLine("Выпускаем шасси");
-           Console.WriteLine("Поднимаем руль высоты");
-           Console.WriteLine("Сбрасываем скорость");
-           Console.WriteLine("--ПОСАДКА--");
-           Console.WriteLine("Выпускаем тормозной парашют");
-       }
-   }
+public class Square : Rectangle
+{
+    public override int Width
+    {
+        set { base.Width = base.Height = value; } // Нарушение LSP!
+    }
 
-      public class WaterLandingProfile : ILandingProfile
-   {
-       public void Execute()
-       {
-           Console.WriteLine(">> Загружен профиль: ПОСАДКА НА ВОДУ <<");
-          
-           Console.WriteLine("Сбрасываем скорость");
-           Console.WriteLine("Опускаем руль высоты");
-           Console.WriteLine("Сбрасываем скорость");
-           Console.WriteLine("Поднимаем руль высоты");
-           Console.WriteLine("Сбрасываем скорость");
-           Console.WriteLine("--ПОСАДКА--");
-       }
-   }
+    public override int Height
+    {
+        set { base.Width = base.Height = value; } // Нарушение LSP!
+    }
+}
 
-      class Program
-   {
-       static void Main(string[] args)
-       {
-           var boardComputer = new BoardComputer();
-          
-           // посадка на землю
-           boardComputer.PerformLanding(new GroundLandingProfile());
- 
-           Console.WriteLine();
-          
-           // посадка на воду
-           boardComputer.PerformLanding(new WaterLandingProfile());
-       }
-   }
+// ===== СОБЛЮДЕНИЕ LSP =====
+public interface IShape
+{
+    int GetArea();
+}
+
+public class GoodRectangle : IShape
+{
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public int GetArea() => Width * Height;
+}
+
+public class GoodSquare : IShape
+{
+    public int Side { get; set; }
+    public int GetArea() => Side * Side;
+}
+
+class Program
+{
+    static void Main()
+    {
+        // === Демонстрация нарушения LSP ===
+        Console.WriteLine("Нарушение LSP:");
+        Rectangle rect = new Square();
+        rect.Width = 5;
+        rect.Height = 4;
+        Console.WriteLine($"Ожидается площадь = 20, но получается: {rect.Area}"); // 16 (!)
+
+        // === Демонстрация соблюдения LSP ===
+        Console.WriteLine("\nСоблюдение LSP:");
+        IShape goodRect = new GoodRectangle { Width = 5, Height = 4 };
+        IShape goodSquare = new GoodSquare { Side = 5 };
+        Console.WriteLine($"Площадь прямоугольника: {goodRect.GetArea()}"); // 20
+        Console.WriteLine($"Площадь квадрата: {goodSquare.GetArea()}");     // 25
+    }
+}
