@@ -1,61 +1,53 @@
-﻿using System;
-
-// Базовый интерфейс
-public interface ICar
+﻿public interface IHdmiInterface
 {
-    void Drive();
+    void Display(string text);
 }
 
-// Опциональные интерфейсы
-public interface IOffRoadPack
+class Monitor : IHdmiInterface
 {
-    void DriveDown();
-    void LockDifferential();
-    void DescentAssist();
+    public void Display(string text)
+    {
+        Console.WriteLine("Вывод на монитор");
+    }
 }
 
-public interface IPremiumPack
+class Tv : IHdmiInterface
 {
-    void CruiseControl();
+    public void Display(string text)
+    {
+        Console.WriteLine("Вывод на телевизор");
+    }
 }
 
-public interface ISportPack
+class VideoAdapter
 {
-    void FourWheelDrive();
-}
+    public string Text { get; set; }
+    public IHdmiInterface HdmiInterface { get; set; }
 
-// Классы машин
-public class Sedane : ICar, IPremiumPack
-{
-    public void Drive() => Console.WriteLine("Седан едет");
-    public void CruiseControl() => Console.WriteLine("Круиз-контроль включён");
-}
+    public VideoAdapter(IHdmiInterface hdmiInterface)
+    {
+        HdmiInterface = hdmiInterface;
+    }
 
-public class Suv : ICar, IOffRoadPack, ISportPack, IPremiumPack
-{
-    public void Drive() => Console.WriteLine("Внедорожник едет");
-    public void CruiseControl() => Console.WriteLine("Круиз-контроль включён");
-    public void FourWheelDrive() => Console.WriteLine("Полный привод активирован");
-    public void DriveDown() => Console.WriteLine("Спуск с горы");
-    public void LockDifferential() => Console.WriteLine("Дифференциал заблокирован");
-    public void DescentAssist() => Console.WriteLine("Помощь при спуске");
-}
-
-public class Driver
-{
-    public void Drive(ICar car) => car.Drive();
+    /// <summary>
+    /// Метод вывода
+    /// </summary>
+    public void Display()
+    {
+        HdmiInterface.Display(Text);
+    }
 }
 
 class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
-        var driver = new Driver();
+        //  выводим на монитор
+        var connectedMonitor = new VideoAdapter(new Monitor());
+        connectedMonitor.Display();
 
-        Console.WriteLine("Седан:");
-        driver.Drive(new Sedane());
-
-        Console.WriteLine("\nВнедорожник:");
-        driver.Drive(new Suv());
+        //  выводим на телевизор
+        var connectedTv = new VideoAdapter(new Tv());
+        connectedTv.Display();
     }
 }
