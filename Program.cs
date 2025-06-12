@@ -1,53 +1,53 @@
-﻿public interface IHdmiInterface
+﻿public abstract class Account
 {
-    void Display(string text);
+    public double Balance { get; set; }
+    public double Interest { get; set; }
+
+    public abstract void CalculateInterest();
 }
 
-class Monitor : IHdmiInterface
+public class RegularAccount : Account
 {
-    public void Display(string text)
+    public override void CalculateInterest()
     {
-        Console.WriteLine("Вывод на монитор");
+        Interest = Balance * 0.4;
+
+        if (Balance < 1000)
+            Interest -= Balance * 0.2;
+        else if (Balance >= 1000)
+            Interest -= Balance * 0.4;
     }
 }
 
-class Tv : IHdmiInterface
+public class SalaryAccount : Account
 {
-    public void Display(string text)
+    public override void CalculateInterest()
     {
-        Console.WriteLine("Вывод на телевизор");
+        Interest = Balance * 0.5;
     }
 }
 
-class VideoAdapter
+public static class Calculator
 {
-    public string Text { get; set; }
-    public IHdmiInterface HdmiInterface { get; set; }
-
-    public VideoAdapter(IHdmiInterface hdmiInterface)
+    public static void CalculateInterest(Account account)
     {
-        HdmiInterface = hdmiInterface;
-    }
-
-    /// <summary>
-    /// Метод вывода
-    /// </summary>
-    public void Display()
-    {
-        HdmiInterface.Display(Text);
+        account.CalculateInterest();
     }
 }
+
 
 class Program
 {
     static void Main(string[] args)
     {
-        //  выводим на монитор
-        var connectedMonitor = new VideoAdapter(new Monitor());
-        connectedMonitor.Display();
 
-        //  выводим на телевизор
-        var connectedTv = new VideoAdapter(new Tv());
-        connectedTv.Display();
+        var regularAccount = new RegularAccount { Balance = 500 };
+        var salaryAccount = new SalaryAccount { Balance = 5000 };
+
+        Calculator.CalculateInterest(regularAccount);
+        salaryAccount.CalculateInterest();
+
+        Console.WriteLine($"Обычный счёт: {regularAccount.Interest}");
+        Console.WriteLine($"Зарплатный счёт: {salaryAccount.Interest}");
     }
 }
