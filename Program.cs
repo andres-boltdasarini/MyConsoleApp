@@ -1,117 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-
-
-    class Product
-    {
-        private string _type;
-
-        // составные части
-        private Dictionary<string, string> _parts = new Dictionary<string, string>();
-        /// <summary>
-        ///  Метод - конструктор
-        /// </summary>
-        public Product(string type)
-        {
-            _type = type;
-        }
-        // Индексатор
-        public string this[string key]
-        {
-            set
-            {
-                _parts[key] = value;
-            }
-        }
-        /// <summary>
-        /// Метод для получения информации о продукте
-        /// </summary>
-        public void Show()
-        {
-            Console.WriteLine();
-            Console.WriteLine($"Вид транспортного средства: {_type}");
-            Console.WriteLine($" Рама : {_parts["frame"]}"); Console.WriteLine($" Двигатель : {_parts["engine"]}");
-            Console.WriteLine($" Колеся: {_parts["wheels"]}");
-            Console.WriteLine($" Двери : {_parts["doors"]}");
-        }
-    }
-
-
-abstract class Conveyor
+﻿interface ILocation
 {
-    protected Product _product;
+    /// Метод для клонирования
+    ILocation Clone();
 
-    public Product Product
-    {
-        get { return _product; }
-    }
-    // Методы для постройки составных частей
-
-    public abstract void BuildFrame();
-    public abstract void BuildEngine();
-    public abstract void BuildWheels();
-    public abstract void BuildDoors();
+    // Метод для получения информации об объекте
+    void GetInfo();
 }
-
-class CarConveyor : Conveyor
+class Point : ILocation
 {
-    public CarConveyor()
+    double Latitude;
+    double Longitude;
+
+    public Point(double latitude, double longitude)
     {
-        _product = new Product("Auto");
+        Latitude = latitude;
+        Longitude = longitude;
     }
-    public override void BuildFrame()
+    // Метод для клонирования
+    public ILocation Clone()
     {
-        _product["frame"] = "Рама автомобиля";
+        return new Point(Latitude, Longitude);
     }
-    public override void BuildEngine()
+
+    public void GetInfo()
     {
-        _product["engine"] = "150 л.с.";
-    }
-    public override void BuildWheels()
-    {
-        _product["wheels"] = "4";
-    }
-    public override void BuildDoors()
-    {
-        _product["doors"] = "4";
+        Console.WriteLine($"Новая точка на карте с координатами {Longitude}, {Latitude}");
     }
 }
 
-class MotoConveyor : Conveyor
+class Place : ILocation
 {
-    public MotoConveyor()
-    {
-        _product = new Product("Moto");
-    }
-    public override void BuildFrame()
-    {
-        _product["frame"] = "Рама мотоцикла";
-    }
-    public override void BuildEngine()
-    {
-        _product["engine"] = "300 л.с.";
-    }
-    public override void BuildWheels()
-    {
-        _product["wheels"] = "2";
-    }
-    public override void BuildDoors()
-    {
-        _product["doors"] = "0";
-    }
-}
+    string Address;
 
-class CarPlant
-{
-    /// <summary>
-    /// Запуск процесса постройки
-    /// </summary>
-    public void Construct(Conveyor conveyor)
+    public Place(string address)
     {
-        conveyor.BuildFrame();
-        conveyor.BuildEngine();
-        conveyor.BuildWheels();
-        conveyor.BuildDoors();
+        Address = address;
+    }
+    // Метод для клонирования
+    public ILocation Clone()
+    {
+        return new Place(Address);
+    }
+
+    public void GetInfo()
+    {
+        Console.WriteLine($"Новый объект по адресу {Address}. ");
     }
 }
 
@@ -119,22 +52,23 @@ class Program
 {
     static void Main(string[] args)
     {
-        // создаем движок шаблонизатора
-        //TemplateEngine templateEngine = new TemplateEngine();
-        CarPlant сarPlant = new CarPlant();
+        // создаем точку
+        ILocation location = new Point(30.245, 40.954);
+        // клонируем точку (получаем новую точку с теми же координатами)
+        ILocation clonedLocation = location.Clone();
 
-        // создаем шаблонизатор для приветственной рассылки
-        //TemplateBuilder builder = new WelcomeTemplateBuilder();
-        Conveyor builder = new MotoConveyor();
-        // генерируем  приветственное письо с текстом
-        //Template greetingsTemplate = templateEngine.GenerateTemplate(builder);
-        сarPlant.Construct(builder);
-        builder.Product.Show();
+        location.GetInfo();
+        clonedLocation.GetInfo();
 
-        builder = new CarConveyor();
-        // генерируем  приветственное письо с текстом
-        //Template greetingsTemplate = templateEngine.GenerateTemplate(builder);
-        сarPlant.Construct(builder);
-        builder.Product.Show();
+        Console.WriteLine();
+
+        // создаем место
+        location = new Place("Улица Пушкина, дом Колотушкина");
+        // клонируем место (получаем новое место по тому же адресу)
+        // пример использования - нам надо обозначить новый магазин в том же самом торговом центре
+        clonedLocation = location.Clone();
+
+        location.GetInfo();
+        clonedLocation.GetInfo();
     }
 }
