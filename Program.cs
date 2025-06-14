@@ -1,53 +1,140 @@
-﻿public abstract class Account
-{
-    public double Balance { get; set; }
-    public double Interest { get; set; }
+﻿using System;
+using System.Collections.Generic;
 
-    public abstract void CalculateInterest();
+
+    class Product
+    {
+        private string _type;
+
+        // составные части
+        private Dictionary<string, string> _parts = new Dictionary<string, string>();
+        /// <summary>
+        ///  Метод - конструктор
+        /// </summary>
+        public Product(string type)
+        {
+            _type = type;
+        }
+        // Индексатор
+        public string this[string key]
+        {
+            set
+            {
+                _parts[key] = value;
+            }
+        }
+        /// <summary>
+        /// Метод для получения информации о продукте
+        /// </summary>
+        public void Show()
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Вид транспортного средства: {_type}");
+            Console.WriteLine($" Рама : {_parts["frame"]}"); Console.WriteLine($" Двигатель : {_parts["engine"]}");
+            Console.WriteLine($" Колеся: {_parts["wheels"]}");
+            Console.WriteLine($" Двери : {_parts["doors"]}");
+        }
+    }
+
+
+abstract class Conveyor
+{
+    protected Product _product;
+
+    public Product Product
+    {
+        get { return _product; }
+    }
+    // Методы для постройки составных частей
+
+    public abstract void BuildFrame();
+    public abstract void BuildEngine();
+    public abstract void BuildWheels();
+    public abstract void BuildDoors();
 }
 
-public class RegularAccount : Account
+class CarConveyor : Conveyor
 {
-    public override void CalculateInterest()
+    public CarConveyor()
     {
-        Interest = Balance * 0.4;
-
-        if (Balance < 1000)
-            Interest -= Balance * 0.2;
-        else if (Balance >= 1000)
-            Interest -= Balance * 0.4;
+        _product = new Product("Auto");
+    }
+    public override void BuildFrame()
+    {
+        _product["frame"] = "Рама автомобиля";
+    }
+    public override void BuildEngine()
+    {
+        _product["engine"] = "150 л.с.";
+    }
+    public override void BuildWheels()
+    {
+        _product["wheels"] = "4";
+    }
+    public override void BuildDoors()
+    {
+        _product["doors"] = "4";
     }
 }
 
-public class SalaryAccount : Account
+class MotoConveyor : Conveyor
 {
-    public override void CalculateInterest()
+    public MotoConveyor()
     {
-        Interest = Balance * 0.5;
+        _product = new Product("Moto");
+    }
+    public override void BuildFrame()
+    {
+        _product["frame"] = "Рама мотоцикла";
+    }
+    public override void BuildEngine()
+    {
+        _product["engine"] = "300 л.с.";
+    }
+    public override void BuildWheels()
+    {
+        _product["wheels"] = "2";
+    }
+    public override void BuildDoors()
+    {
+        _product["doors"] = "0";
     }
 }
 
-public static class Calculator
+class CarPlant
 {
-    public static void CalculateInterest(Account account)
+    /// <summary>
+    /// Запуск процесса постройки
+    /// </summary>
+    public void Construct(Conveyor conveyor)
     {
-        account.CalculateInterest();
+        conveyor.BuildFrame();
+        conveyor.BuildEngine();
+        conveyor.BuildWheels();
+        conveyor.BuildDoors();
     }
 }
-
 
 class Program
 {
     static void Main(string[] args)
     {
+        // создаем движок шаблонизатора
+        //TemplateEngine templateEngine = new TemplateEngine();
+        CarPlant сarPlant = new CarPlant();
 
-        var regularAccount = new RegularAccount { Balance = 500 };
-        var salaryAccount = new SalaryAccount { Balance = 5000 };
+        // создаем шаблонизатор для приветственной рассылки
+        //TemplateBuilder builder = new WelcomeTemplateBuilder();
+        Conveyor builder = new MotoConveyor();
+        // генерируем  приветственное письо с текстом
+        //Template greetingsTemplate = templateEngine.GenerateTemplate(builder);
+        сarPlant.Construct(builder);
+        builder.Product.Show();
 
-        Calculator.CalculateInterest(regularAccount);
-        salaryAccount.CalculateInterest();
-
-        Console.WriteLine($"Обычный счёт: {regularAccount.Interest}");
-        Console.WriteLine($"Зарплатный счёт: {salaryAccount.Interest}");
+        builder = new CarConveyor();
+        // генерируем  приветственное письо с текстом
+        //Template greetingsTemplate = templateEngine.GenerateTemplate(builder);
+        сarPlant.Construct(builder);
+        builder.Product.Show();
     }
 }
