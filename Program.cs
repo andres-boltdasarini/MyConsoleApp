@@ -1,91 +1,70 @@
 ﻿/// <summary>
-/// Базовый класс команды
+/// Общий интерфейс отопительных котлов
 /// </summary>
-abstract class Command
+interface IHeater
 {
-    public abstract void Run();
-    public abstract void Cancel();
-}
-
-/// <summary>
-/// Отправитель команды
-/// </summary>
-class Sender
-{
-    Command _command;
-
-    public void SetCommand(Command command)
-    {
-        _command = command;
-    }
-
-    // Выполнить
-    public void Run()
-    {
-        _command.Run();
-    }
-
-    // Отменить
-    public void Cancel()
-    {
-        _command.Cancel();
-    }
-}
-
-/// <summary>
-/// Адресат команды
-/// </summary>
-class Receiver
-{
-    public void Operation()
-    {
-        Console.WriteLine("Процесс запущен");
-    }
-}
-
-/// <summary>
-/// Конкретная реализация команды.
-/// </summary>
-class CommandOne : Command
-{
-    Receiver receiver;
-
-    public CommandOne(Receiver receiver)
-    {
-        this.receiver = receiver;
-    }
-
-    // Выполнить
-    public override void Run()
-    {
-        Console.WriteLine("Команда отправлена");
-        receiver.Operation();
-    }
-
-    // Отменить
-    public override void Cancel()
-    { }
+    //  Нагрев
+    void Heat();
 }
 /// <summary>
-/// Клиентский код
+///  Реализация газового отопления
 /// </summary>
+class GasHeater : IHeater
+{
+    public void Heat()
+    {
+        Console.WriteLine("Нагрев газом");
+    }
+}
+/// <summary>
+/// Реализация электрического отопления
+/// </summary>
+class ElectricHeater : IHeater
+{
+    public void Heat()
+    {
+        Console.WriteLine("Нагрев электричеством");
+    }
+}
+class Boiler
+{
+    //  Мощность
+    protected int Power;
+
+    // Модель
+    protected string Model;
+    public Boiler(int power, string model, IHeater heater)
+    {
+        Power = power;
+        Model = model;
+        Heater = heater;
+    }
+
+    /// <summary>
+    /// Интерфейс подключения отопителя
+    /// </summary>
+    public IHeater Heater { private get; set; }
+
+    /// <summary>
+    /// Запуск отопителя
+    /// </summary>
+    public void Start()
+    {
+        Heater.Heat();
+    }
+}
 class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
-        // создадим отправителя
-        var sender = new Sender();
+        // Подключаем котел на газу
+        var boiler = new Boiler(30, "Bosch", new GasHeater());
+        // Запускаем
+        boiler.Start();
 
-        // создадим получателя
-        var receiver = new Receiver();
-
-        // создадим команду
-        var commandOne = new CommandOne(receiver);
-
-        // инициализация команды
-        sender.SetCommand(commandOne);
-
-        //  выполнение
-        sender.Run();
+        // газ закончился. Переключаемся на электричество
+        boiler.Heater = new ElectricHeater();
+        // Запускаем
+        boiler.Start();
     }
 }
