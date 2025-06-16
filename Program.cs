@@ -1,74 +1,91 @@
-﻿interface ILocation
+﻿/// <summary>
+/// Базовый класс команды
+/// </summary>
+abstract class Command
 {
-    /// Метод для клонирования
-    ILocation Clone();
-
-    // Метод для получения информации об объекте
-    void GetInfo();
-}
-class Point : ILocation
-{
-    double Latitude;
-    double Longitude;
-
-    public Point(double latitude, double longitude)
-    {
-        Latitude = latitude;
-        Longitude = longitude;
-    }
-    // Метод для клонирования
-    public ILocation Clone()
-    {
-        return new Point(Latitude, Longitude);
-    }
-
-    public void GetInfo()
-    {
-        Console.WriteLine($"Новая точка на карте с координатами {Longitude}, {Latitude}");
-    }
+    public abstract void Run();
+    public abstract void Cancel();
 }
 
-class Place : ILocation
+/// <summary>
+/// Отправитель команды
+/// </summary>
+class Sender
 {
-    string Address;
+    Command _command;
 
-    public Place(string address)
+    public void SetCommand(Command command)
     {
-        Address = address;
-    }
-    // Метод для клонирования
-    public ILocation Clone()
-    {
-        return new Place(Address);
+        _command = command;
     }
 
-    public void GetInfo()
+    // Выполнить
+    public void Run()
     {
-        Console.WriteLine($"Новый объект по адресу {Address}. ");
+        _command.Run();
+    }
+
+    // Отменить
+    public void Cancel()
+    {
+        _command.Cancel();
     }
 }
 
+/// <summary>
+/// Адресат команды
+/// </summary>
+class Receiver
+{
+    public void Operation()
+    {
+        Console.WriteLine("Процесс запущен");
+    }
+}
+
+/// <summary>
+/// Конкретная реализация команды.
+/// </summary>
+class CommandOne : Command
+{
+    Receiver receiver;
+
+    public CommandOne(Receiver receiver)
+    {
+        this.receiver = receiver;
+    }
+
+    // Выполнить
+    public override void Run()
+    {
+        Console.WriteLine("Команда отправлена");
+        receiver.Operation();
+    }
+
+    // Отменить
+    public override void Cancel()
+    { }
+}
+/// <summary>
+/// Клиентский код
+/// </summary>
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
-        // создаем точку
-        ILocation location = new Point(30.245, 40.954);
-        // клонируем точку (получаем новую точку с теми же координатами)
-        ILocation clonedLocation = location.Clone();
+        // создадим отправителя
+        var sender = new Sender();
 
-        location.GetInfo();
-        clonedLocation.GetInfo();
+        // создадим получателя
+        var receiver = new Receiver();
 
-        Console.WriteLine();
+        // создадим команду
+        var commandOne = new CommandOne(receiver);
 
-        // создаем место
-        location = new Place("Улица Пушкина, дом Колотушкина");
-        // клонируем место (получаем новое место по тому же адресу)
-        // пример использования - нам надо обозначить новый магазин в том же самом торговом центре
-        clonedLocation = location.Clone();
+        // инициализация команды
+        sender.SetCommand(commandOne);
 
-        location.GetInfo();
-        clonedLocation.GetInfo();
+        //  выполнение
+        sender.Run();
     }
 }
