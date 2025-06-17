@@ -1,70 +1,181 @@
-﻿/// <summary>
-/// Общий интерфейс отопительных котлов
-/// </summary>
-interface IHeater
-{
-    //  Нагрев
-    void Heat();
-}
-/// <summary>
-///  Реализация газового отопления
-/// </summary>
-class GasHeater : IHeater
-{
-    public void Heat()
-    {
-        Console.WriteLine("Нагрев газом");
-    }
-}
-/// <summary>
-/// Реализация электрического отопления
-/// </summary>
-class ElectricHeater : IHeater
-{
-    public void Heat()
-    {
-        Console.WriteLine("Нагрев электричеством");
-    }
-}
-class Boiler
-{
-    //  Мощность
-    protected int Power;
+﻿using System;
+using System.Threading.Tasks;
+using YoutubeExplode;
+using YoutubeExplode.Common;
+using YoutubeExplode.Converter;
+using YoutubeExplode.Videos;
+using YoutubeExplode.Videos.Streams;
 
-    // Модель
-    protected string Model;
-    public Boiler(int power, string model, IHeater heater)
+// Интерфейс команды
+public interface ICommand
+{
+    Task ExecuteAsync();
+}
+
+// Команда для получения информации о видео
+public class GetVideoInfoCommand : ICommand
+{
+    private readonly string _videoUrl;
+    private readonly YoutubeClient _youtubeClient;
+
+    public GetVideoInfoCommand(string videoUrl)
     {
-        Power = power;
-        Model = model;
-        Heater = heater;
+        _videoUrl = videoUrl;
+        _youtubeClient = new YoutubeClient();
     }
 
-    /// <summary>
-    /// Интерфейс подключения отопителя
-    /// </summary>
-    public IHeater Heater { private get; set; }
-
-    /// <summary>
-    /// Запуск отопителя
-    /// </summary>
-    public void Start()
+    public async Task ExecuteAsync()
     {
-        Heater.Heat();
+        try
+        {
+            var video = await _youtubeClient.Videos.GetAsync(_videoUrl);
+
+            Console.WriteLine("=== Информация о видео ===");
+            Console.WriteLine($"Название: {video.Title}");
+            Console.WriteLine($"Описание: {video.Description}");
+            Console.WriteLine($"Длительность: {video.Duration}");
+            Console.WriteLine($"Дата загрузки: {video.UploadDate}");
+            Console.WriteLine($"Автор: {video.Author}");
+            Console.WriteLine($"Просмотры: {video.Engagement.ViewCount}");
+            Console.WriteLine($"Лайки: {video.Engagement.LikeCount}");
+            Console.WriteLine("==========================");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при получении информации: {ex.Message}");
+        }
     }
 }
-class Program
-{
-    static void Main(string[] args)
-    {
-        // Подключаем котел на газу
-        var boiler = new Boiler(30, "Bosch", new GasHeater());
-        // Запускаем
-        boiler.Start();
 
-        // газ закончился. Переключаемся на электричество
-        boiler.Heater = new ElectricHeater();
-        // Запускаем
-        boiler.Start();
+// Команда для скачивания видео
+public class DownloadVideoCommand : ICommand
+{
+    private readonly string _videoUrl;
+    private readonly string _outputPath;
+    private readonly YoutubeClient _youtubeClient;
+
+    public DownloadVideoCommand(string videoUrl, string outputPath = "video.mp4")
+    {
+        _videoUrl = videoUrl;
+        _outputPath = outputPath;
+        _youtubeClient = new YoutubeClient();
+    }
+
+    public async Task ExecuteAsync()
+    {
+        try
+        {
+            Console.WriteLine("Начинаем загрузку...");
+
+            // Получаем информацию о потоке
+            var streamManifest = await _youtubeClient.Videos.Streams.GetManifestAsync(_videoUrl);
+
+            // Выбираем лучший видео+аудио поток
+            var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
+
+            if (streamInfo == null)
+            {
+                Console.WriteLine("Не удалось найти подходящий поток для загрузки");
+                return;
+            }
+
+            // Скачиваем видео
+            await _youtubeClient.Videos.Streams.DownloadAsync(streamInfo, _outputPath);
+
+            Console.WriteLine($"Видео успешно скачано в: {_outputPath}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке видео: {ex.Message}");
+        }
+    }
+}
+
+// Класс-вызыватель команд
+public class CommandInvoker
+{
+    private ICommand _command;
+
+    public void SetCommand(ICommand command)
+    {
+        _command = command;
+    }
+
+    public async Task ExecuteCommandAsync()
+    {
+        if (_command != null)
+        {
+            await _command.ExecuteAsync();
+        }
+        else
+        {
+            Console.WriteLine("Команда не установлена.");
+        }
+    }
+}
+
+// Основной класс программы
+public class Program
+{
+    public static async Task Main(string[] args)
+    {
+        Console.WriteLine("YouTube Video Processor (YoutubeExplode v" +
+            typeof(YoutubeClient).Assembly.GetName().Version + ")");
+        Console.WriteLine("Доступные команды:");
+        Console.WriteLine("1. info <url> - Получить информацию о видео");
+        Console.WriteLine("2. download <url> [output] - Скачать видео (по умолчанию: video.mp4)");
+        Console.WriteLine("3. exit - Выйти из программы");
+
+        var invoker = new CommandInvoker();
+
+        while (true)
+        {
+            Console.Write("\nВведите команду: ");
+            var input = Console.ReadLine()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(input))
+                continue;
+
+            if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                break;
+
+            var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var commandName = parts[0].ToLower();
+
+            try
+            {
+                switch (commandName)
+                {
+                    case "info":
+                        if (parts.Length < 2)
+                        {
+                            Console.WriteLine("Пожалуйста, укажите URL YouTube");
+                            continue;
+                        }
+                        invoker.SetCommand(new GetVideoInfoCommand(parts[1]));
+                        await invoker.ExecuteCommandAsync();
+                        break;
+
+                    case "download":
+                        if (parts.Length < 2)
+                        {
+                            Console.WriteLine("Пожалуйста, укажите URL YouTube");
+                            continue;
+                        }
+                        var outputPath = parts.Length > 2 ? parts[2] : "video.mp4";
+                        invoker.SetCommand(new DownloadVideoCommand(parts[1], outputPath));
+                        await invoker.ExecuteCommandAsync();
+                        break;
+
+                    default:
+                        Console.WriteLine("Неизвестная команда");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+            }
+        }
     }
 }
