@@ -1,72 +1,75 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 class Program
 {
-    public static string[] smyckaSongs = new string[4] { "Intro", "Betrayed", "Mutated", "Wrecked" };
+    private static string[] smyckaSongs = { "Intro", "Betrayed", "Mutated", "Wrecked" };
+    private static readonly Random rnd = new Random();
+
     static void Main()
     {
-        string[] str = new string[1] { "" };
-
-        while (true)
+        using (HttpListener listener = new HttpListener())
         {
-            SimpleListenerExample(str);
+            listener.Prefixes.Add("http://localhost:8080/");
+            listener.Start();
+            Console.WriteLine("Listening on http://localhost:8080/");
+
+            // Обработка Ctrl+C для корректного завершения
+            Console.CancelKeyPress += (s, e) =>
+            {
+                listener.Stop();
+                Console.WriteLine("Listener stopped");
+            };
+
+            try
+            {
+                while (true)
+                {
+                    // Асинхронное получение контекста
+                    HttpListenerContext context = listener.GetContext();
+                    ProcessRequest(context);
+                }
+            }
+            catch (HttpListenerException ex)
+            {
+                Console.WriteLine($"Listener exception: {ex.Message}");
+            }
         }
     }
-    public static Stream? output;
-    public static void SimpleListenerExample(string[] prefixes)
+
+    private static void ProcessRequest(HttpListenerContext context)
     {
-        Random rnd = new Random();
-
-        if (!HttpListener.IsSupported)
+        using (HttpListenerResponse response = context.Response)
         {
-            Console.WriteLine("Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
-            return;
+            try
+            {
+                string responseString;
+                if (context.Request.HttpMethod == "GET")
+                {
+                    responseString = smyckaSongs[rnd.Next(smyckaSongs.Length)];
+                }
+                else if (context.Request.HttpMethod == "POST")
+                {
+                    responseString = "Fuck";
+                }
+                else
+                {
+                    response.StatusCode = 405; // Method Not Allowed
+                    responseString = "Method not allowed";
+                }
+
+                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+                response.ContentLength64 = buffer.Length;
+                response.OutputStream.Write(buffer, 0, buffer.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Request error: {ex.Message}");
+                response.StatusCode = 500;
+                byte[] errorBuffer = Encoding.UTF8.GetBytes("Internal Server Error");
+                response.OutputStream.Write(errorBuffer, 0, errorBuffer.Length);
+            }
         }
-        // URI prefixes are required,
-        // for example "http://contoso.com:8080/index/".
-        if (prefixes == null || prefixes.Length == 0)
-            throw new ArgumentException("prefixes");
-
-        // Create a listener.
-        HttpListener listener = new HttpListener();
-        // Add the prefixes.
-        foreach (string s in prefixes)
-        {
-            listener.Prefixes.Add(s);
-        }
-        listener.Start();
-        string resp = smyckaSongs[rnd.Next(4)];
-        Console.WriteLine("Listening...");
-        // Note: The GetContext method blocks while waiting for a request.
-        HttpListenerContext context = listener.GetContext();
-        HttpListenerRequest request = context.Request;
-        Console.WriteLine(request.HttpMethod);
-        // Obtain a response object.
-        HttpListenerResponse response = context.Response;
-        // Construct a response.
-        string responseString;
-        if (request.HttpMethod == "GET")
-            responseString = resp;
-        else if (request.HttpMethod == "POST")
-            responseString = "Fuck";
-        else responseString = "No";
-
-        byte[] buffer = Encoding.UTF8.GetBytes(responseString);
-
-        // Get a response stream and write the response to it.
-
-        response.ContentLength64 = buffer.Length;
-
-        output = response.OutputStream;
-
-        output?.Write(buffer, 0, buffer.Length);
-
-        // You must close the output stream.
-        output?.Close();
-        listener.Stop();
     }
 }
