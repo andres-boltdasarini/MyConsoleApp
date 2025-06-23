@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using YoutubeExplode;
-using YoutubeExplode.Common;
-using YoutubeExplode.Converter;
 using YoutubeExplode.Videos;
-using YoutubeExplode.Videos.Streams;
+using YoutubeExplode.Converter;
 
 // Интерфейс команды
 public interface ICommand
@@ -36,8 +34,6 @@ public class GetVideoInfoCommand : ICommand
             Console.WriteLine($"Длительность: {video.Duration}");
             Console.WriteLine($"Дата загрузки: {video.UploadDate}");
             Console.WriteLine($"Автор: {video.Author}");
-            Console.WriteLine($"Просмотры: {video.Engagement.ViewCount}");
-            Console.WriteLine($"Лайки: {video.Engagement.LikeCount}");
             Console.WriteLine("==========================");
         }
         catch (Exception ex)
@@ -67,20 +63,11 @@ public class DownloadVideoCommand : ICommand
         {
             Console.WriteLine("Начинаем загрузку...");
 
-            // Получаем информацию о потоке
-            var streamManifest = await _youtubeClient.Videos.Streams.GetManifestAsync(_videoUrl);
-
-            // Выбираем лучший видео+аудио поток
-            var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
-
-            if (streamInfo == null)
-            {
-                Console.WriteLine("Не удалось найти подходящий поток для загрузки");
-                return;
-            }
-
-            // Скачиваем видео
-            await _youtubeClient.Videos.Streams.DownloadAsync(streamInfo, _outputPath);
+            await _youtubeClient.Videos.DownloadAsync(
+                _videoUrl,
+                _outputPath,
+                builder => builder.SetPreset(ConversionPreset.UltraFast)
+            );
 
             Console.WriteLine($"Видео успешно скачано в: {_outputPath}");
         }
@@ -119,8 +106,7 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        Console.WriteLine("YouTube Video Processor (YoutubeExplode v" +
-            typeof(YoutubeClient).Assembly.GetName().Version + ")");
+        Console.WriteLine("YouTube Video Processor");
         Console.WriteLine("Доступные команды:");
         Console.WriteLine("1. info <url> - Получить информацию о видео");
         Console.WriteLine("2. download <url> [output] - Скачать видео (по умолчанию: video.mp4)");
